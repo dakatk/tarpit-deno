@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "allowJs": false
+    },
+    "lint": {
+        "rules": {
+            "exclude": ["no-explicit-any"]
+        }
+    }
+}
