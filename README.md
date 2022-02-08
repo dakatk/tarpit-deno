@@ -1,6 +1,6 @@
 ## TARPIT MVC
 
-Tarpit is a server-side API library for Deno modeled after Spring/Spring Boot
+Tarpit is a server-side API library for Deno modeled after ASP.NET / Spring Boot
 
 ### Why does this exist?
 
