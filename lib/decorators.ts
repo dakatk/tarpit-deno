@@ -7,6 +7,7 @@ import {
     ControllerMetadata,
     DependencyClass
 } from './metadata.ts';
+import { ArgParser } from './arg-parser.ts';
 import "https://deno.land/x/reflection/mod.ts";
 
 interface Type<T> {
@@ -124,5 +125,39 @@ function request(method: string, endpoint: string) {
         };
         Reflect.defineMetadata(_ENDPOINT_DECORATOR_META_KEY, metadata, classConstructor, key);
         return descriptor;
+    }
+}
+
+// TODO Works, but only with static members
+export function FromArg(propertyNames: string | string[]) {
+    return (target: any, key: string) => {
+        if (target.constructor.name !== 'Function') {
+            console.error("'FromArg' decorator is only applicable to static members");
+            return;
+        }
+        const name = key.toString();
+        const argName = `__${name}__cli_arg`;
+
+        Object.defineProperties(target, {
+            [argName]: {
+                writable: true,
+                enumerable: false,
+                configurable: true
+            },
+            [name]: {
+                configurable: true,
+                enumerable: true,
+                get () {
+                    if (!this[argName]) {
+                        if (Array.isArray(propertyNames)) {
+                            this[argName] = ArgParser.firstOf(...propertyNames);
+                        } else {
+                            this[argName] = ArgParser.firstOf(propertyNames.toString());
+                        }
+                    }
+                    return this[argName];
+                }
+            }
+        });
     }
 }

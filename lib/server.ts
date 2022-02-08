@@ -1,4 +1,5 @@
 // https://deno.land/manual/examples/http_server
+
 type Callback = (request: Request) => Promise<Response>;
 
 export async function serve(callback: Callback, port: number) {

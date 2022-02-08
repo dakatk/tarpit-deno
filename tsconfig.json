@@ -1,7 +1,7 @@
 {
     "compilerOptions": {
         "experimentalDecorators": true,
-        "allowJs": false
+        "emitDecoratorMetadata": true,
     },
     "lint": {
         "rules": {
