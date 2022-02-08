@@ -48,7 +48,7 @@ async function responseFromRoute(method: string, route: string, routeActions: Ro
     }
     const callback: (body?: Request | undefined) => Promise<Response> = routeActions[method];
 
-    let responseValue: Response = new Response();
+    let responseValue: Response;
     try {
         responseValue = await callback.call(routeInstance, requestValue);
     } catch (e: any) {

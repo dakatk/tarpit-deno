@@ -1,52 +1,25 @@
-import { ControllerClass, DependencyClass } from './metadata.ts';
-import { parseRequestUrl } from './serve-request.ts';
-import { ResponseError } from './response-error.ts';
-import { EndpointsFactory, EndpointData } from './endpoints-factory.ts';
-import { DependencyFactory } from './dependency-factory.ts';
-import { ControllerBase } from './controller.ts';
-import { serve, ServeInit } from 'https://deno.land/std@0.114.0/http/server.ts';
+// https://deno.land/manual/examples/http_server
+type Callback = (request: Request) => Promise<Response>;
 
-/**
- * 
- */
-export class Tarpit {
-    private static endpointsFactory: EndpointsFactory = new EndpointsFactory();
+export async function serve(callback: Callback, port: number) {
+    const server = Deno.listen({ 
+        transport: "tcp", 
+        port
+    });
+    console.log(`Tarpit server running at http://localhost:${port}`);
 
-    /**
-     * @param module 
-     */
-    static injectModule(module: { controllers: Array<ControllerClass>, dependencies: Array<DependencyClass> }) {
-        const factory: DependencyFactory = new DependencyFactory(module.dependencies);
-        const controllers: Array<ControllerBase> = factory.createControllers(module.controllers);
-
-        this.endpointsFactory.addControllers(controllers);
-    }
-
-    /**
-     * @param port 
-     */
-    static createServer(port?: number) {
-        const controllerEndpoints: EndpointData = this.endpointsFactory.all;
-        console.log(`Listening on http://localhost:${port || 8000}`);
-
-        const options: ServeInit | undefined = port ? { addr: `:${port}` } : undefined; 
-        serve(async request => await handleRequest(request, controllerEndpoints), options);
+    for await (const conn of server) {
+        serveHttp(callback, conn);
     }
 }
 
-async function handleRequest(request: Request, controllerEndpoints: EndpointData) {
-    let response;
-    try {
-        response = await parseRequestUrl(request, controllerEndpoints);
-    } catch (e: any) {
-        response = errorResponse(e);
+async function serveHttp(callback: Callback, conn: Deno.Conn) {
+    const httpConn = Deno.serveHttp(conn);
+
+    for await (const requestEvent of httpConn) {
+        const request: Request = requestEvent.request;
+        const response: Response = await callback(request);
+
+        requestEvent.respondWith(response);
     }
-    return response;
-}
-
-function errorResponse(e: ResponseError) {
-    const status = e.code || 500;
-    const message = e.stack || e.message;
-
-    return new Response(message, { status });
 }
