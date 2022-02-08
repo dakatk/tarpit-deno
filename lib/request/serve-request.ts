@@ -1,9 +1,14 @@
 import * as path from 'https://deno.land/std/path/mod.ts';
-
-import { ResponseError, NotFoundError, ServerError, NotImplementedError, BadGatewayError } from './response-error.ts';
+import { 
+    ResponseError, 
+    NotFoundError, 
+    ServerError, 
+    NotImplementedError, 
+    BadGatewayError 
+} from '../response/response-error.ts';
 import { contentType } from './content-type.ts';
-import { EndpointData } from './endpoints-factory.ts';
-import { ControllerBase } from './controller.ts';
+import { EndpointData } from '../factory/endpoints-factory.ts';
+import { ControllerBase } from '../controller.ts';
 
 type RouteActions = Record<string, (body?: Request) => Promise<Response>>;
 

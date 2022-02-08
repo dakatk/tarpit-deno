@@ -1,5 +1,5 @@
-import { RouteMetadata } from './metadata.ts';
-import { ControllerBase } from './controller.ts';
+import { RouteMetadata } from '../metadata.ts';
+import { ControllerBase } from '../controller.ts';
 
 export interface EndpointData {
     routeMetadata: RouteMetadata;
