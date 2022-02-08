@@ -1,24 +1,15 @@
-import { parse, Args } from 'https://deno.land/std/flags/mod.ts';
-
-export class ArgParser {
-    private static args: Args;
-
-    static firstOf(...argNames: string[]) {
-        if (!this.args) {
-            this.args = parse(Deno.args);
-        }
-
-        for (const argName of argNames) {
-            if (argName in this.args) {
-                return this.args[argName];
-            }
-        }
-        return undefined;
-    }
-}
+import { ConfigHelper } from '../config.ts';
 
 // TODO Works, but only with static members
-export function FromArg(propertyNames: string | string[]) {
+/**
+ * Populates the value for the annotated static variable
+ * from the server config
+ * @param propertyNames Name(s) of server config properties 
+ */
+export function Config(propertyNames: string | string[]) {
+    if (!Array.isArray(propertyNames)) {
+        propertyNames = [propertyNames.toString()];
+    }
     return (target: any, key: string) => {
         if (target.constructor.name !== 'Function') {
             console.error("'FromArg' decorator is only applicable to static members");
@@ -38,10 +29,11 @@ export function FromArg(propertyNames: string | string[]) {
                 enumerable: true,
                 get () {
                     if (!this[argName]) {
-                        if (Array.isArray(propertyNames)) {
-                            this[argName] = ArgParser.firstOf(...propertyNames);
-                        } else {
-                            this[argName] = ArgParser.firstOf(propertyNames.toString());
+                        for (const propName of propertyNames) {
+                            if (ConfigHelper.hasKey(propName)) {
+                                this[argName] = ConfigHelper.getValue(propName);
+                                break;
+                            }
                         }
                     }
                     return this[argName];
