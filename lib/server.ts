@@ -3,6 +3,9 @@
 type Callback = (request: Request) => Promise<Response>;
 
 export async function serve(callback: Callback, port: number) {
+    if (port <= 0) {
+        throw new Error("'port' value must be a positive integer");
+    }
     const server = Deno.listen({ 
         transport: "tcp", 
         port

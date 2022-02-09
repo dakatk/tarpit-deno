@@ -11,8 +11,11 @@ import { serve } from './server.ts';
  * This is where it all begins...
  */
 export class Tarpit {
-    private static defaultPort = 8080;
     private static endpointsFactory: EndpointsFactory = new EndpointsFactory();
+    private static defaultConfig: ServerConfig = {
+        port: 8080,
+        staticDir: 'public'
+    };
 
     /**
      * @param module { 
@@ -37,12 +40,14 @@ export class Tarpit {
      * from cli variables. Defaults to 'true'.
      */
     static async createServer(serverConfig: ServerConfig = {}, allowCli = true): Promise<void> {
+        serverConfig = {
+            ...serverConfig,
+            ...this.defaultConfig
+        };
         ConfigHelper.setConfig(serverConfig, allowCli);
 
         const controllerEndpoints: EndpointData = this.endpointsFactory.all;
-        const port = serverConfig.port || this.defaultPort;
-        
-        await serve(async request => await handleRequest(request, controllerEndpoints), port);
+        await serve(async request => await handleRequest(request, controllerEndpoints), serverConfig.port || -1);
     }
 }
 

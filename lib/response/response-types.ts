@@ -1,5 +1,6 @@
 import { NotFoundError } from './response-error.ts';
 import { contentType } from './content-type.ts';
+import { ConfigHelper } from '../config.ts';
 import * as path from 'https://deno.land/std/path/mod.ts';
 
 /**
@@ -42,21 +43,21 @@ export class TextResponse extends Response {
  */
 export class FileResponse extends Response {
     /**
-     * @param filepath Full file path relative the configured 
+     * @param filePath Full file path relative the configured 
      * static directory
      */
-    constructor(filepath: string) {
-        filepath = resolveStaticFilePath(filepath);
+    constructor(filePath: string) {
+        filePath = resolveStaticFilePath(filePath);
 
-        const extension: string = path.extname(filepath);
+        const extension: string = path.extname(filePath);
         const mimeType: string = contentType[extension] || 'application/octet-stream';
 
-        const stat = Deno.statSync(filepath);
+        const stat = Deno.statSync(filePath);
         if (!stat.isFile) {
-            throw new NotFoundError(`File does not exist: ${filepath}`);
+            throw new NotFoundError(`File does not exist: ${filePath}`);
         }
 
-        const file: Uint8Array = Deno.readFileSync(filepath);
+        const file: Uint8Array = Deno.readFileSync(filePath);
         super(file, {
             headers: {
                 'Content-Type': mimeType
@@ -65,11 +66,16 @@ export class FileResponse extends Response {
     }
 }
 
-function resolveStaticFilePath(filepath: string) {
-    if (filepath === '/') {
-        filepath = '/index.html';
-    } else if (!filepath.startsWith('/')) {
-        filepath = '/' + filepath;
+function resolveStaticFilePath(filePath: string) {
+    if (filePath === '/') {
+        filePath = '/index.html';
+    } else if (!filePath.startsWith('/')) {
+        filePath = '/' + filePath;
     }
-    return `./public${filepath}`;
+
+    let staticFileRoot = '.';
+    if (ConfigHelper.hasKey('staticDir')) {
+        staticFileRoot += `/${ConfigHelper.getValue('staticDir')}`;
+    }
+    return `${staticFileRoot}${filePath}`;
 }

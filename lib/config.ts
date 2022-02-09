@@ -7,9 +7,14 @@ import { parse, Args } from 'https://deno.land/std/flags/mod.ts';
  */
 export interface ServerConfig {
     /**
-     * The public port the server will run on. Defaults to 8080
+     * Public port the server will run on. Defaults to 8080
      */
     port?: number;
+    /**
+     * Directory relative to project root where static files are
+     * served from. Defaults to 'public'
+     */
+    staticDir?: string;
     [key: string]: any;
 }
 
