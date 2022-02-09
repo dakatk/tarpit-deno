@@ -7,6 +7,11 @@ import { ServerConfig, ConfigHelper } from './config.ts';
 import { ControllerBase } from './controller.ts';
 import { serve } from './server.ts';
 
+export interface LifetimeCallbacks {
+    setup?: () => void;
+    close?: (signal: Deno.Signal) => void; 
+}
+
 /**
  * This is where it all begins...
  */
@@ -35,19 +40,38 @@ export class Tarpit {
      * @param serverConfig Static server config. Additional options 
      * are taken first from any environment variables given at runtime,
      * then from command line arguments.  
-     * 
-     * @param allowCli Whether or not to allow auto-population of config 
+     * @param setup Function that is executed before the server is configurated and started
+     * @param close Function that is executed after server is closed
+     * @param configureCli Whether or not to allow auto-population of config 
      * from cli variables. Defaults to 'true'.
      */
-    static async createServer(serverConfig: ServerConfig = {}, allowCli = true): Promise<void> {
+    static async createServer(serverConfig: ServerConfig = {}, lifetimeCallbacks?: LifetimeCallbacks, configureCli = true): Promise<void> {
+        if (lifetimeCallbacks?.setup) {
+            lifetimeCallbacks.setup();
+        }
+        bindSignalListeners((signal: Deno.Signal) => {
+            if (lifetimeCallbacks?.close) {
+                lifetimeCallbacks.close(signal);
+            }
+        });
+
         serverConfig = {
             ...serverConfig,
             ...this.defaultConfig
         };
-        ConfigHelper.setConfig(serverConfig, allowCli);
+        ConfigHelper.setConfig(serverConfig, configureCli);
 
         const controllerEndpoints: EndpointData = this.endpointsFactory.all;
         await serve(async request => await handleRequest(request, controllerEndpoints), serverConfig.port || -1);
+    }
+}
+
+function bindSignalListeners(close: (signal: Deno.Signal) => void) {
+    for (const signal of ['SIGQUIT', 'SIGINT', 'SIGTERM']) {
+        Deno.addSignalListener(signal as Deno.Signal, () => {
+            close(signal as Deno.Signal);
+            Deno.exit(0);
+        });
     }
 }
 
