@@ -3,12 +3,18 @@ import { parseRequestUrl } from './request/serve-request.ts';
 import { EndpointsFactory, EndpointData } from './factory/endpoints-factory.ts';
 import { DependencyFactory } from './factory/dependency-factory.ts';
 import { ControllerClass, DependencyClass } from './metadata.ts';
-import { ServerConfig, ConfigHelper } from './config.ts';
+import { ServerConfig, ConfigHelper, HttpsConfig } from './config.ts';
 import { ControllerBase } from './controller.ts';
 import { serve } from './server.ts';
 
 export interface LifetimeCallbacks {
+    /**
+     * Function that is executed before the server is configurated and started.
+     */
     setup?: () => void;
+    /**
+     * Function that is executed after server is closed.
+     */
     close?: (signal: Deno.Signal) => void; 
 }
 
@@ -18,15 +24,16 @@ export interface LifetimeCallbacks {
 export class Tarpit {
     private static endpointsFactory: EndpointsFactory = new EndpointsFactory();
     private static defaultConfig: ServerConfig = {
-        port: 8080,
-        staticDir: 'public'
+        port: 8000,
+        staticDir: 'public',
+        useHttps: false
     };
 
     /**
      * @param module { 
-     *   controllers: List of controller classes,
+     *   controllers: List of controller classes.
      *   dependencies: List of all other injectable classes used
-     *   as dependencies by controllers or other injectables
+     *   as dependencies by controllers or other injectables.
      * }
      */
     static injectModule(module: { controllers: Array<ControllerClass>, dependencies: Array<DependencyClass> }) {
@@ -40,8 +47,9 @@ export class Tarpit {
      * @param serverConfig Static server config. Additional options 
      * are taken first from any environment variables given at runtime,
      * then from command line arguments.  
-     * @param setup Function that is executed before the server is configurated and started
-     * @param close Function that is executed after server is closed
+     * @param lifetimeCallbacks Contains the 'setup' and 'close' callbacks,
+     * executed at the very beginning and very end of the program life
+     * cycle (respsectively).
      * @param configureCli Whether or not to allow auto-population of config 
      * from cli variables. Defaults to 'true'.
      */
@@ -62,7 +70,10 @@ export class Tarpit {
         ConfigHelper.setConfig(serverConfig, configureCli);
 
         const controllerEndpoints: EndpointData = this.endpointsFactory.all;
-        await serve(async request => await handleRequest(request, controllerEndpoints), serverConfig.port || -1);
+        const httpsConfig: HttpsConfig | undefined = serverConfig.useHttps ? serverConfig.https : undefined;
+        const port: number = serverConfig.port || -1;
+
+        await serve(async request => await handleRequest(request, controllerEndpoints), port, httpsConfig);
     }
 }
 

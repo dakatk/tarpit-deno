@@ -73,6 +73,7 @@ export function PatchMapping(endpoint: string) {
     return request('PATCH', endpoint);
 }
 
+// TODO Function argumentes should be taken into account for route and query params
 function request(method: string, endpoint: string) {
     return (target: any, key: string, descriptor: PropertyDescriptor) => {
         const classConstructor = target.constructor;
