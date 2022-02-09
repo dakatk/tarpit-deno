@@ -1,9 +1,9 @@
 import { NotImplementedError, BadGatewayError } from '../response/response-error.ts';
 import { FileResponse } from '../response/response-types.ts';
 import { EndpointData } from '../factory/endpoints-factory.ts';
-import { ControllerBase, RequestBody } from '../controller.ts';
+import { ControllerBase } from '../controller.ts';
 
-type RouteActions = Record<string, (body?: RequestBody) => Promise<Response>>;
+type RouteActions = Record<string, (request?: Request) => Promise<Response>>;
 
 /**
  * Resolves the {@link Request.url | url} from the given request from either
@@ -23,26 +23,14 @@ export async function parseRequestUrl(request: Request, controllerEndpoints: End
     if (routeActions) {
         const method: string = request.method;
         const instance: ControllerBase = controllerEndpoints.instances[pathname];
-        const requestBody = request.body ? extractRequestBody(request) : undefined;
+        const requestData = request.body ? request : undefined;
 
-        return await responseFromController(method, pathname, routeActions, instance, requestBody);
+        return await responseFromController(method, pathname, routeActions, instance, requestData);
     }
 
     return await new Promise(resolve => 
         resolve(new FileResponse(pathname))
     );
-}
-
-function extractRequestBody(request: Request): RequestBody {
-    return {
-        body: request.body,
-        bodyUsed: request.bodyUsed,
-        arrayBuffer: request.arrayBuffer,
-        blob: request.blob,
-        formData: request.formData,
-        json: request.json,
-        text: request.text
-    };
 }
 
 /**
@@ -54,16 +42,16 @@ function extractRequestBody(request: Request): RequestBody {
  * route, and the controller method that should be called for each one
  * @param instance The {@link ControllerBase | controller} instance where the 
  * ontroller method should be called from
- * @param requestBody The {@link Request | request} object if it contained 
+ * @param requestData The {@link Request | request} object if it contained 
  * a body, otherwise `undefined`
  * @returns The {@link Response | response} data returned from the controller method
  */
-async function responseFromController(method: string, route: string, routeActions: RouteActions, instance: ControllerBase, requestBody: RequestBody | undefined) {
+async function responseFromController(method: string, route: string, routeActions: RouteActions, instance: ControllerBase, requestData: Request | undefined) {
     if (!(method in routeActions)) {
         throw new NotImplementedError(`Invalid request method for '${route}': '${method}'`);
     }
-    const callback: (body?: RequestBody | undefined) => Promise<Response> = routeActions[method];
-    const responseValue = await callback.call(instance, requestBody);
+    const callback: (body?: Request | undefined) => Promise<Response> = routeActions[method];
+    const responseValue = await callback.call(instance, requestData);
 
     if (!(responseValue instanceof Response)) {
         throw new BadGatewayError(`Invalid response type returned from '${route}' (expected: Response, got: ${responseValue['constructor']['name']})`)

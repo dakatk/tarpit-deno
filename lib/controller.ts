@@ -2,41 +2,6 @@ import { _ENDPOINT_DECORATOR_META_KEY, RouteMetadata, DecoratorRouteMetadata } f
 import "https://deno.land/x/reflection/mod.ts";
 
 /**
- * Extracted body data from a {@link Request | request} object
- */
-export interface RequestBody {
-    /**
-     * {@link Request.body}
-     */
-    body: ReadableStream<Uint8Array> | null;
-    /** 
-     * {@link Request.bodyUsed}
-     */
-    bodyUsed: boolean;
-    /** 
-     * {@link Request.arrayBuffer}
-     */
-    arrayBuffer(): Promise<ArrayBuffer>;
-    /** 
-     * {@link Request.blob}
-     */
-    blob(): Promise<Blob>;
-    /** 
-     * {@link Request.formData}
-     */
-    formData(): Promise<FormData>;
-    /** 
-     * {@link Request.json}
-     */
-    json(): Promise<any>;
-    /** 
-     * {@link Request.text}
-     */
-    text(): Promise<string>;
-}
-
-
-/**
  * Initial logic needed for a controller class to resolve it's mapped routes.
  * All controller classes must extends this class, or they won't work work properly
  */
