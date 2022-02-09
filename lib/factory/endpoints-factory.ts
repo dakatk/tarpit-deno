@@ -29,7 +29,7 @@ export class EndpointsFactory {
             instances: {}
         };
         for (const controller of this.controllers) {
-            for (const [key, routeMeta] of Object.entries(controller.routesMetadata)) {
+            for (const [key, routeMeta] of Object.entries(controller._routesMetadata)) {
                 const prevRouteMetadata = endpointMethods.routeMetadata[key] || {};
                 endpointMethods.routeMetadata[key] = {...prevRouteMetadata, ...routeMeta};
                 endpointMethods.instances[key] = controller;

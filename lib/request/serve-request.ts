@@ -1,12 +1,5 @@
-import * as path from 'https://deno.land/std/path/mod.ts';
-import { 
-    ResponseError, 
-    NotFoundError, 
-    ServerError, 
-    NotImplementedError, 
-    BadGatewayError 
-} from '../response/response-error.ts';
-import { contentType } from './content-type.ts';
+import { NotImplementedError, BadGatewayError } from '../response/response-error.ts';
+import { FileResponse } from '../response/response-types.ts';
 import { EndpointData } from '../factory/endpoints-factory.ts';
 import { ControllerBase } from '../controller.ts';
 
@@ -19,9 +12,9 @@ type RouteActions = Record<string, (body?: Request) => Promise<Response>>;
  * @returns 
  */
 export async function parseRequestUrl(request: Request, controllerEndpoints: EndpointData): Promise<Response> {
-    let { pathname } = new URL(request.url);
-
+    const { pathname } = new URL(request.url);
     const actions: RouteActions = controllerEndpoints.routeMetadata[pathname];
+
     if (actions) {
         const method: string = request.method;
         const instance: ControllerBase = controllerEndpoints.instances[pathname];
@@ -30,12 +23,9 @@ export async function parseRequestUrl(request: Request, controllerEndpoints: End
         return await responseFromRoute(method, pathname, actions, instance, requestValue);
     }
 
-    if (pathname === '/') {
-        pathname = '/index.html';
-    } else if (!pathname.startsWith('/')) {
-        pathname = '/' + pathname;
-    }
-    return await serveStaticFile('./public' + pathname);
+    return await new Promise(resolve => 
+        resolve(new FileResponse(pathname))
+    );
 }
 
 /**
@@ -52,39 +42,10 @@ async function responseFromRoute(method: string, route: string, routeActions: Ro
         throw new NotImplementedError(`Invalid request method for '${route}': '${method}'`);
     }
     const callback: (body?: Request | undefined) => Promise<Response> = routeActions[method];
+    const responseValue = await callback.call(routeInstance, requestValue);
 
-    let responseValue: Response;
-    try {
-        responseValue = await callback.call(routeInstance, requestValue);
-    } catch (e: any) {
-        if (e.code) {
-            throw new ResponseError(e.message, e.code);
-        } else {
-            throw new ServerError(e.message);
-        }
-    }
     if (!(responseValue instanceof Response)) {
         throw new BadGatewayError(`Invalid response type returned from '${route}' (expected: Response, got: ${responseValue['constructor']['name']})`)
     }
     return responseValue;
-}
-
-/**
- * 
- * @param pathname 
- * @returns 
- */
-async function serveStaticFile(pathname: string): Promise<Response> {
-    const extension: string = path.extname(pathname);
-    const mimeType: string = contentType[extension] || 'application/octet-stream';
-
-    const stat = await Deno.stat(pathname);
-    if (!stat.isFile) {
-        throw new NotFoundError(`File does not exist: ${pathname}`);
-    }
-
-    const file: Uint8Array = await Deno.readFile(pathname);
-    return new Response(file, { 
-        headers: { 'Content-Type': mimeType }
-    });
 }

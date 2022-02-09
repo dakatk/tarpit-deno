@@ -42,7 +42,7 @@ export class ControllerBase {
      * Containes all data needed for the Tarpit server to 
      * resolve resolve the controller's endpoints upon request
      */
-    get routesMetadata(): RouteMetadata {
+    get _routesMetadata(): RouteMetadata {
         return this.routesMeta;
     }
 }
