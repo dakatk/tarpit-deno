@@ -2,7 +2,7 @@ import { _ENDPOINT_DECORATOR_META_KEY, DecoratorRouteMetadata } from '../metadat
 import "https://deno.land/x/reflection/mod.ts";
 
 /**
- * HTTP 'GET' request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET | GET} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
  export function GetMapping(endpoint: string) {
@@ -10,7 +10,7 @@ import "https://deno.land/x/reflection/mod.ts";
 }
 
 /**
- * HTTP 'HEAD' request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD | HEAD} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
  export function HeadMapping(endpoint: string) {
@@ -18,7 +18,7 @@ import "https://deno.land/x/reflection/mod.ts";
 }
 
 /**
- * HTTP 'POST' request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST | POST} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function PostMapping(endpoint: string) {
@@ -26,7 +26,7 @@ export function PostMapping(endpoint: string) {
 }
 
 /**
- * HTTP 'PUT' request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT | PUT} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function PutMapping(endpoint: string) {
@@ -34,7 +34,7 @@ export function PutMapping(endpoint: string) {
 }
 
 /**
- * HTTP 'DELETE' request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/DELETE | DELETE} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function DeleteMapping(endpoint: string) {
@@ -42,7 +42,7 @@ export function DeleteMapping(endpoint: string) {
 }
 
 /**
- * HTTP 'CONNECT' request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/CONNECT | CONNECT} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function ConnectMapping(endpoint: string) {
@@ -50,7 +50,7 @@ export function ConnectMapping(endpoint: string) {
 }
 
 /**
- * HTTP 'OPTIONS' request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS | OPTIONS} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function OptionsMapping(endpoint: string) {
@@ -58,7 +58,7 @@ export function OptionsMapping(endpoint: string) {
 }
 
 /**
- * HTTP 'TRACE' request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/TRACE | TRACE} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function TraceMapping(endpoint: string) {
@@ -66,15 +66,17 @@ export function TraceMapping(endpoint: string) {
 }
 
 /**
- * HTTP 'PATCH' request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH | PATCH} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function PatchMapping(endpoint: string) {
     return request('PATCH', endpoint);
 }
 
-// TODO Function argumentes should be taken into account for route and query params
-function request(method: string, endpoint: string) {
+type HttpMethod = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'CONNECT' | 'OPTIONS' | 'TRACE' | 'PATCH';
+
+// TODO Function arguments should be taken into account for route and query params
+function request(method: HttpMethod, endpoint: string) {
     return (target: any, key: string, descriptor: PropertyDescriptor) => {
         const classConstructor = target.constructor;
         const metadata: DecoratorRouteMetadata = {

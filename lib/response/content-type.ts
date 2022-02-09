@@ -1,6 +1,7 @@
 /**
- * Mapping of extensions to MIMETypes. When resolving static files,
- * the 'Content-Type' header property is populated based on these values.
+ * Mapping of extensions to supported {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types MIME types}. 
+ * When resolving static files, the `"Content-Type"` header property is populated based on these values
+ * (server defaults to `"application/octet-stream"` when serving static files if no matching MIME type is found here).
  */
 export const contentType: Record<string, string> = {
     '.aac': 'audio/aac',

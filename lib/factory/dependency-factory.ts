@@ -10,15 +10,15 @@ import { ControllerBase } from '../controller.ts';
 import "https://deno.land/x/reflection/mod.ts";
 
 /**
- * 
+ * Creates instances of injectable dependencies to be auto-injected
+ * where needed at runtime
  */
 export class DependencyFactory {
     private dependencies: Record<string, DependencyClass> = {};
     private singletons: Record<string, any> = {};
 
     /**
-     * 
-     * @param dependencyClasses 
+     * @param dependencyClasses List of injectable dependencies
      */
     constructor(dependencyClasses: Array<DependencyClass>) {
         this.reserveDependencies(dependencyClasses);
@@ -61,9 +61,12 @@ export class DependencyFactory {
     }
     
     /**
+     * Creates instances for all controller classes, creating injectable 
+     * dependency instances where needed.
      * 
-     * @param controllerClasses 
-     * @returns 
+     * @param controllerClasses List of controller classes
+     * @returns List of controller instances created as singletons using 
+     * the given {@link controllerClasses}.
      */
     createControllers(controllerClasses: Array<ControllerClass>): Array<ControllerBase> {
         const controllerInstances: Array<ControllerBase> = [];

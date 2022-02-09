@@ -2,7 +2,9 @@ import { HttpsConfig } from './config.ts';
 
 type Callback = (request: Request) => Promise<Response>;
 
-// https://deno.land/manual/examples/http_server
+/**
+ * {@link https://deno.land/manual/examples/http_server}
+ */
 export async function serve(callback: Callback, port: number, httpsConfig?: HttpsConfig) {
     if (port <= 0) {
         throw new Error("'port' value must be a positive integer");

@@ -21,17 +21,17 @@ export interface HttpsConfig {
  */
 export interface ServerConfig {
     /**
-     * Public port the server will run on. Defaults to 8000.
+     * Public port the server will run on. Defaults to `8000`.
      */
     port?: number;
     /**
      * Directory relative to project root where static files are
-     * served from. Defaults to 'public'.
+     * served from. Defaults to `"public"`.
      */
     staticDir?: string;
     /**
-     * Choose whether to use HTTPS (true) or HTTP (false). 
-     * Defaults to 'false'.
+     * Choose whether to use HTTPS (`true`) or HTTP (`false`). 
+     * Defaults to `false`.
      */
     useHttps?: boolean;
     /**
@@ -58,7 +58,11 @@ export class ConfigHelper {
             if (arg === '_') {
                 continue;
             }
-            // TODO Remove shadowing
+            
+            const propName = arg.toLowerCase();
+            if (propName in this.serverConfig) {
+                continue;
+            }
             this.serverConfig[arg.toLowerCase()] = parsedArgs[arg];
         }
     }

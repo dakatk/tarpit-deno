@@ -27,7 +27,7 @@ export function Controller() {
 /**
  * Marks a class as an injectable dependency.
  * 
- * @param singleton If true, only a single instance of the class will be created,
+ * @param singleton If `true`, only a single instance of the class will be created,
  * using only that one instance for each injection. Otherwise, a new instance of 
  * the class will be created for each other class that depends on it.
  */

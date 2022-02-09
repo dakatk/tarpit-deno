@@ -5,7 +5,7 @@ import * as path from 'https://deno.land/std/path/mod.ts';
 
 /**
  * Creates a Response object with a JSON body and 
- * with the 'Content-Type' header set to 'application/json'
+ * with the `"Content-Type"` header set to `"application/json"`
  */
 export class JsonResponse extends Response {
     /**
@@ -22,7 +22,7 @@ export class JsonResponse extends Response {
 
 /**
  * Creates a Response object with a plain text body and 
- * with the 'Content-Type' header set to 'text/plain'
+ * with the `"Content-Type"` header set to `"text/plain"`
  */
 export class TextResponse extends Response {
     /**
@@ -39,7 +39,7 @@ export class TextResponse extends Response {
 
 /**
  * Creates a Response object with a static file as the body and 
- * with the 'Content-Type' header set to 'text/plain'
+ * with the `"Content-Type"` header set to `"text/plain"`
  */
 export class FileResponse extends Response {
     /**

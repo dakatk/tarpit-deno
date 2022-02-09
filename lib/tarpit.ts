@@ -30,11 +30,11 @@ export class Tarpit {
     };
 
     /**
-     * @param module { 
+     * @param module `{ 
      *   controllers: List of controller classes.
      *   dependencies: List of all other injectable classes used
      *   as dependencies by controllers or other injectables.
-     * }
+     * }`
      */
     static injectModule(module: { controllers: Array<ControllerClass>, dependencies: Array<DependencyClass> }) {
         const factory: DependencyFactory = new DependencyFactory(module.dependencies);
@@ -47,11 +47,13 @@ export class Tarpit {
      * @param serverConfig Static server config. Additional options 
      * are taken first from any environment variables given at runtime,
      * then from command line arguments.  
-     * @param lifetimeCallbacks Contains the 'setup' and 'close' callbacks,
-     * executed at the very beginning and very end of the program life
-     * cycle (respsectively).
-     * @param configureCli Whether or not to allow auto-population of config 
-     * from cli variables. Defaults to 'true'.
+     * @param lifetimeCallbacks Contains the {@link LifetimeCallbacks.setup | setup} 
+     * and {@link LifetimeCallbacks.close | close} callbacks, executed at the very 
+     * beginning and very end of the program life cycle (respsectively).
+     * @param configureCli Whether or not to allow creation of extra config 
+     * values from CLI variables. Defaults to `true` (Note: CLI arguments
+     * cannot shadow properties already available in {@link ServerConfig}. i.e., 
+     * providing `--port 9001` as a CLI argument won't override {@link ServerConfig.port}.
      */
     static async createServer(serverConfig: ServerConfig = {}, lifetimeCallbacks?: LifetimeCallbacks, configureCli = true): Promise<void> {
         if (lifetimeCallbacks?.setup) {
