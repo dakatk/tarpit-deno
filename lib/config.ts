@@ -42,9 +42,17 @@ export interface ServerConfig {
     [key: string]: any;
 }
 
+/**
+ * 
+ */
 export class ConfigHelper {
     private static serverConfig: ServerConfig;
 
+    /**
+     * 
+     * @param serverOptions 
+     * @param allowCli 
+     */
     static setConfig(serverOptions: ServerConfig, allowCli: boolean) {
         this.serverConfig = serverOptions;
         if (allowCli) {
@@ -67,10 +75,20 @@ export class ConfigHelper {
         }
     }
 
+    /**
+     * 
+     * @param key 
+     * @returns 
+     */
     static hasKey(key: string) {
         return key in this.serverConfig;
     }
 
+    /**
+     * 
+     * @param key 
+     * @returns 
+     */
     static getValue(key: string) {
         return this.serverConfig[key];
     }

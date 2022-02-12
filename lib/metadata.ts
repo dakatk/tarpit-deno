@@ -3,15 +3,16 @@ import { ControllerBase } from './controller.ts';
 export const _ENDPOINT_DECORATOR_META_KEY = '_ENDPOINT_DECORATOR_META_KEY';
 export const _INJECTABLE_DECORATOR_META_KEY = '_INJECTABLE_DECORATOR_META_KEY';
 export const _CONTROLLER_DECORATOR_META_KEY = '_CONTROLLER_DECORATOR_META_KEY';
+export const _BODY_DECORATOR_META_KEY = '_BODY_DECORATOR_META_KEY';
 
-export type RouteMetadata = Record<string, Record<string, (request?: Request) => Promise<Response>>>;
-export type ControllerClass = new (...a: any[]) => ControllerBase;
-export type DependencyClass = new (...a: any[]) => any;
+export type RouteMetadata = Record<string, Record<string, (...args: any[]) => Promise<Response>>>;
+export type ControllerClass = new (...args: any[]) => ControllerBase;
+export type DependencyClass = new (...args: any[]) => any;
 
 export interface DecoratorRouteMetadata {
     method: string,
     endpoint: string,
-    callback: (request?: Request) => Promise<Response>
+    callback: (...args: any[]) => Promise<Response>
 }
 
 export interface ControllerMetadata {
@@ -21,4 +22,10 @@ export interface ControllerMetadata {
 export interface InjectableMetadata {
     params: Array<DependencyClass>;
     singleton: boolean;
+}
+
+export interface BodyMetadata {
+    type: string;
+    index: number;
+    paramTypes: any[];
 }

@@ -10,7 +10,7 @@ export async function serve(callback: Callback, port: number, httpsConfig?: Http
         throw new Error("'port' value must be a positive integer");
     }
     const server = createServer(port, httpsConfig);
-    console.log(`Tarpit server running at http://localhost:${port}`);
+    console.log(`Tarpit server running at ${httpsConfig ? 'https' : 'http'}://localhost:${port}`);
 
     for await (const conn of server) {
         serveHttp(callback, conn);

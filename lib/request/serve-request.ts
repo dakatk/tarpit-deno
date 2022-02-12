@@ -2,8 +2,9 @@ import { NotImplementedError, BadGatewayError } from '../response/response-error
 import { FileResponse } from '../response/response-types.ts';
 import { EndpointData } from '../factory/endpoints-factory.ts';
 import { ControllerBase } from '../controller.ts';
+import { parseBodyAndQuery } from './parse-request.ts';
 
-type RouteActions = Record<string, (request?: Request) => Promise<Response>>;
+type RouteActions = Record<string, (...args: any[]) => Promise<Response>>;
 
 /**
  * Resolves the {@link Request.url | url} from the given request from either
@@ -17,20 +18,35 @@ type RouteActions = Record<string, (request?: Request) => Promise<Response>>;
  * {@link FileResponse} with a static file matching the given path
  */
 export async function parseRequestUrl(request: Request, controllerEndpoints: EndpointData): Promise<Response> {
-    const { pathname } = new URL(request.url);
+    const { pathname, searchParams } = new URL(request.url);
     const routeActions: RouteActions = controllerEndpoints.routeMetadata[pathname];
 
     if (routeActions) {
         const method: string = request.method;
         const instance: ControllerBase = controllerEndpoints.instances[pathname];
-        const requestData = request.body ? request : undefined;
+        const queryParams: Record<string, string> = parseSearchParams(searchParams);
 
-        return await responseFromController(method, pathname, routeActions, instance, requestData);
+        if (!(method in routeActions)) {
+            throw new NotImplementedError(`Invalid request method for '${pathname}': '${method}'`);
+        }
+        return await responseFromController(method, routeActions, instance, request, queryParams);
     }
 
     return await new Promise(resolve => 
         resolve(new FileResponse(pathname))
     );
+}
+
+function parseSearchParams(searchParams: URLSearchParams): Record<string, string> {
+    const queryParamsObj: Record<string, string> = {};
+
+    for (const param of searchParams) {
+        const name = param[0];
+        const value = param[1];
+
+        queryParamsObj[name] = value;
+    }
+    return queryParamsObj;
 }
 
 /**
@@ -46,15 +62,20 @@ export async function parseRequestUrl(request: Request, controllerEndpoints: End
  * a body, otherwise `undefined`
  * @returns The {@link Response | response} data returned from the controller method
  */
-async function responseFromController(method: string, route: string, routeActions: RouteActions, instance: ControllerBase, requestData: Request | undefined) {
-    if (!(method in routeActions)) {
-        throw new NotImplementedError(`Invalid request method for '${route}': '${method}'`);
-    }
-    const callback: (body?: Request | undefined) => Promise<Response> = routeActions[method];
-    const responseValue = await callback.call(instance, requestData);
+async function responseFromController(method: string, routeActions: RouteActions, instance: ControllerBase, requestData: Request, queryParams: Record<string, string>) {
+    const callback: (...args: any[]) => Promise<Response> = routeActions[method];
+    
+    const classConstructor = instance.constructor;
+    const length = callback.length;
+    const name = callback.name;
+
+    const params: any[] = await parseBodyAndQuery(requestData, queryParams, classConstructor, name, length);
+    const responseValue = await callback.call(instance, ...params);
 
     if (!(responseValue instanceof Response)) {
-        throw new BadGatewayError(`Invalid response type returned from '${route}' (expected: Response, got: ${responseValue['constructor']['name']})`)
+        throw new BadGatewayError(`Invalid response type returned from '${classConstructor.name}.${name}' (expected: Response, got: ${responseValue['constructor']['name']})`)
     }
     return responseValue;
 }
+
+

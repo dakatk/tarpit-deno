@@ -75,7 +75,6 @@ export function PatchMapping(endpoint: string) {
 
 type HttpMethod = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'CONNECT' | 'OPTIONS' | 'TRACE' | 'PATCH';
 
-// TODO Function arguments should be taken into account for route and query params
 function request(method: HttpMethod, endpoint: string) {
     return (target: any, key: string, descriptor: PropertyDescriptor) => {
         const classConstructor = target.constructor;
