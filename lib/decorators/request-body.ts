@@ -1,29 +1,71 @@
 import { _BODY_DECORATOR_META_KEY, BodyMetadata } from '../metadata.ts';
 import "https://deno.land/x/reflection/mod.ts";
 
-// TODO Required versus optional body annotations
-
-export function ArrayBody(target: any, key: string, index: number) {
-    defineBodyMetadata(target, key, index, 'arrayBuffer');
+/**
+ * Populates with the {@link Request | request} body as {@link ArrayBuffer | an array buffer}.
+ * 
+ * @param required If `true`, an error is thrown when the {@link Request | request} 
+ * has no {@link Request.body | body}. Defaults to `false`. 
+ */
+export function ArrayBody(required = false) {
+    return (target: any, key: string, index: number) => {
+        defineBodyMetadata(target, key, index, 'arrayBuffer', required);
+    }
 }
 
-export function RequestBody(target: any, key: string, index: number) {
-    defineBodyMetadata(target, key, index, 'blob');
+/**
+ * Populates with the {@link Request | request} body as {@link Blob | raw data}.
+ * 
+ * @param required If `true`, an error is thrown when the {@link Request | request} 
+ * has no {@link Request.body | body}. Defaults to `false`. 
+ */
+export function RequestBody(required = false) {
+    return (target: any, key: string, index: number) => {
+        defineBodyMetadata(target, key, index, 'blob', required);
+    }
 }
 
-export function FormDataBody(target: any, key: string, index: number) {
-    defineBodyMetadata(target, key, index, 'formData');
+/**
+ * Populates with the {@link Request | request} body as {@link FormData | form data}.
+ * 
+ * @param required If `true`, an error is thrown when the {@link Request | request} 
+ * has no {@link Request.body | body}. Defaults to `false`. 
+ */
+export function FormDataBody(required = false) {
+    return (target: any, key: string, index: number) => {
+        defineBodyMetadata(target, key, index, 'formData', required);
+    }
 }
 
-export function JsonBody(target: any, key: string, index: number)  {
-    defineBodyMetadata(target, key, index, 'json');
+/**
+ * Populates with the {@link Request | request} body as a JSON object (`any` type).
+ * 
+ * @param required If `true`, an error is thrown when the {@link Request | request} 
+ * has no {@link Request.body | body}. Defaults to `false`. 
+ */
+export function JsonBody(required = false) {
+    return (target: any, key: string, index: number) => {
+        defineBodyMetadata(target, key, index, 'json', required);
+    }
 }
 
-export function TextBody(target: any, key: string, index: number) {
-    defineBodyMetadata(target, key, index, 'text');
+/**
+ * Populates with the {@link Request | request} body as a string.
+ * 
+ * @param required If `true`, an error is thrown when the {@link Request | request} 
+ * has no {@link Request.body | body}. Defaults to `false`. 
+ */
+export function TextBody(required = false) {
+    return (target: any, key: string, index: number) => {
+        defineBodyMetadata(target, key, index, 'text', required);
+    }
 }
 
-function defineBodyMetadata(target: any, key: string, index: number, type: string) {
-    const bodyMetadata: BodyMetadata = { type, index };
+function defineBodyMetadata(target: any, key: string, index: number, type: string, required: boolean) {
+    if (Reflect.hasMetadata(_BODY_DECORATOR_META_KEY, target.constructor, key)) {
+        console.error("WARNING: Only one '@*Body' annotation allowed per controller method. All others after the first one will be ignored.");
+        return;
+    }
+    const bodyMetadata: BodyMetadata = { type, index, required };
     Reflect.defineMetadata(_BODY_DECORATOR_META_KEY, bodyMetadata, target.constructor, key);
 }

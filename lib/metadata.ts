@@ -27,4 +27,5 @@ export interface InjectableMetadata {
 export interface BodyMetadata {
     type: string;
     index: number;
+    required: boolean;
 }

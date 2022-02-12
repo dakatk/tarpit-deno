@@ -6,7 +6,7 @@ export async function parseBodyAndQuery(request: Request, queryParams: Record<st
     const params = new Array<any>(length);
     const meta: BodyMetadata | undefined = Reflect.getMetadata(_BODY_DECORATOR_META_KEY, target, key);
     if (meta) {
-        params[meta.index] = await parseRequestBody(request, meta.type);
+        params[meta.index] = await parseRequestBody(request, meta.type, meta.required);
     }
 
     let nextParamIndex = -1;
@@ -25,8 +25,8 @@ export async function parseBodyAndQuery(request: Request, queryParams: Record<st
     return params;
 }
 
-async function parseRequestBody(request: Request, type: string) {
-    if (!request.body) {
+async function parseRequestBody(request: Request, type: string, required: boolean) {
+    if (required && !request.body) {
         throw new ServerError('Empty request body');
     }
 
@@ -57,5 +57,7 @@ async function parseRequestBody(request: Request, type: string) {
         return await parsedBody.catch(_ => {
             throw new ServerError(`Request body could not be parsed as type '${type}'`);
         });
+    } else {
+        return null;
     }
 }
