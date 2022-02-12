@@ -10,9 +10,9 @@ export type ControllerClass = new (...args: any[]) => ControllerBase;
 export type DependencyClass = new (...args: any[]) => any;
 
 export interface DecoratorRouteMetadata {
-    method: string,
-    endpoint: string,
-    callback: (...args: any[]) => Promise<Response>
+    method: string;
+    endpoint: string;
+    callback: (...args: any[]) => Promise<Response>;
 }
 
 export interface ControllerMetadata {
@@ -27,5 +27,4 @@ export interface InjectableMetadata {
 export interface BodyMetadata {
     type: string;
     index: number;
-    paramTypes: any[];
 }

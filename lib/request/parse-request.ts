@@ -2,7 +2,6 @@ import { ServerError } from '../response/response-error.ts';
 import { BodyMetadata, _BODY_DECORATOR_META_KEY } from '../metadata.ts';
 import "https://deno.land/x/reflection/mod.ts";
 
-// TODO Type validation for queryParams and (?) request body
 export async function parseBodyAndQuery(request: Request, queryParams: Record<string, string>, target: any, key: string, length: number): Promise<any[]> {
     const params = new Array<any>(length);
     const meta: BodyMetadata | undefined = Reflect.getMetadata(_BODY_DECORATOR_META_KEY, target, key);

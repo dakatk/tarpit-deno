@@ -7,13 +7,21 @@ import { ServerConfig, ConfigHelper, HttpsConfig } from './config.ts';
 import { ControllerBase } from './controller.ts';
 import { serve } from './server.ts';
 
+/**
+ * Collection of callbacks that are automatically executed at
+ * various points in the program's lifecycle
+ */
 export interface LifetimeCallbacks {
     /**
-     * Function that is executed before the server is configurated and started.
+     * Executed before the server is configurated and started.
      */
     setup?: () => void;
     /**
-     * Function that is executed after server is closed.
+     * Executed when an error response is created
+     */
+    error?: (e: ResponseError) => void;
+    /**
+     * Executed after server is closed.
      */
     close?: (signal: Deno.Signal) => void; 
 }
@@ -75,7 +83,9 @@ export class Tarpit {
         const httpsConfig: HttpsConfig | undefined = serverConfig.useHttps ? serverConfig.https : undefined;
         const port: number = serverConfig.port || -1;
 
-        await serve(async request => await handleRequest(request, controllerEndpoints), port, httpsConfig);
+        await serve(async request => {
+            return await handleRequest(request, controllerEndpoints, lifetimeCallbacks?.error);
+        }, port, httpsConfig);
     }
 }
 
@@ -88,19 +98,24 @@ function bindSignalListeners(close: (signal: Deno.Signal) => void) {
     }
 }
 
-async function handleRequest(request: Request, controllerEndpoints: EndpointData): Promise<Response> {
+async function handleRequest(request: Request, controllerEndpoints: EndpointData, errorCallback?: (e: ResponseError) => void): Promise<Response> {
     let response;
     try {
         response = await parseRequestUrl(request, controllerEndpoints);
-    } catch (e: any) {
-        response = errorResponse(e);
+    } catch (error: any) {
+        response = errorResponse(error, errorCallback);
     }
     return response;
 }
 
-function errorResponse(e: ResponseError) {
-    const status = e.code || 500;
-    const message = e.stack || e.message;
+function errorResponse(error: ResponseError, errorCallback?: (e: ResponseError) => void) {
+    const status = error.code || 500;
+    const message = error.message || error.stack;
+
+    if (errorCallback) {
+        errorCallback(error);
+    }
+    console.error(error.stack);
 
     return new Response(message, { status });
 }

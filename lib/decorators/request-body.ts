@@ -24,7 +24,6 @@ export function TextBody(target: any, key: string, index: number) {
 }
 
 function defineBodyMetadata(target: any, key: string, index: number, type: string) {
-    const paramTypes: any[] = Reflect.getMetadata('design:paramtypes', target, key) || [];
-    const bodyMetadata: BodyMetadata = { type, index, paramTypes };
+    const bodyMetadata: BodyMetadata = { type, index };
     Reflect.defineMetadata(_BODY_DECORATOR_META_KEY, bodyMetadata, target.constructor, key);
 }
