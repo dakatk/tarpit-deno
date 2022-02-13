@@ -24,29 +24,16 @@ export async function parseRequestUrl(request: Request, controllerEndpoints: End
     if (routeActions) {
         const method: string = request.method;
         const instance: ControllerBase = controllerEndpoints.instances[pathname];
-        const queryParams: Record<string, string> = parseSearchParams(searchParams);
 
         if (!(method in routeActions)) {
             throw new MethodNotAllowedError(`Invalid request method for '${pathname}': '${method}'`);
         }
-        return await responseFromController(method, routeActions, instance, request, queryParams);
+        return await responseFromController(method, routeActions, instance, request, searchParams);
     }
 
     return await new Promise(resolve => 
         resolve(new FileResponse(pathname))
     );
-}
-
-function parseSearchParams(searchParams: URLSearchParams): Record<string, string> {
-    const queryParamsObj: Record<string, string> = {};
-
-    for (const param of searchParams) {
-        const name = param[0];
-        const value = param[1];
-
-        queryParamsObj[name] = value;
-    }
-    return queryParamsObj;
 }
 
 /**
@@ -62,14 +49,14 @@ function parseSearchParams(searchParams: URLSearchParams): Record<string, string
  * a body, otherwise `undefined`
  * @returns The {@link Response | response} data returned from the controller method
  */
-async function responseFromController(method: string, routeActions: RouteActions, instance: ControllerBase, requestData: Request, queryParams: Record<string, string>) {
+async function responseFromController(method: string, routeActions: RouteActions, instance: ControllerBase, requestData: Request, searchParams: URLSearchParams) {
     const callback: (...args: any[]) => Promise<Response> = routeActions[method];
     
     const classConstructor = instance.constructor;
     const length = callback.length;
     const name = callback.name;
 
-    const params: any[] = await parseBodyAndQuery(requestData, queryParams, classConstructor, name, length);
+    const params: any[] = await parseBodyAndQuery(requestData, searchParams, classConstructor, name, length);
     const responseValue = await callback.call(instance, ...params);
 
     if (!(responseValue instanceof Response)) {

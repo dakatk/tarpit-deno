@@ -1,26 +1,22 @@
 import { ServerError } from '../response/response-error.ts';
-import { BodyMetadata, _BODY_DECORATOR_META_KEY } from '../metadata.ts';
+import { 
+    _BODY_DECORATOR_META_KEY,
+    _QUERY_DECORATOR_META_KEY, 
+    BodyMetadata, 
+    QueryMetadata
+} from '../metadata.ts';
 import "https://deno.land/x/reflection/mod.ts";
 
-export async function parseBodyAndQuery(request: Request, queryParams: Record<string, string>, target: any, key: string, length: number): Promise<any[]> {
+export async function parseBodyAndQuery(request: Request, searchParams: URLSearchParams, target: any, key: string, length: number): Promise<any[]> {
     const params = new Array<any>(length);
-    const meta: BodyMetadata | undefined = Reflect.getMetadata(_BODY_DECORATOR_META_KEY, target, key);
-    if (meta) {
-        params[meta.index] = await parseRequestBody(request, meta.type, meta.required);
-    }
+    const bodyMeta: BodyMetadata | undefined = Reflect.getMetadata(_BODY_DECORATOR_META_KEY, target, key);
+    const queryMeta: QueryMetadata | undefined = Reflect.getMetadata(_QUERY_DECORATOR_META_KEY, target, key);
 
-    let nextParamIndex = -1;
-    for (let i = 0; i < length; i ++) {
-        if (params[i] === undefined) {
-            nextParamIndex = i;
-            break;
-        }
+    if (bodyMeta) {
+        params[bodyMeta.index] = await parseRequestBody(request, bodyMeta.type, bodyMeta.required);
     }
-
-    if (nextParamIndex !== -1) {
-        params[nextParamIndex] = queryParams;
-    } else {
-        params.push(queryParams);
+    if (queryMeta) {
+        params[queryMeta.index] = parseSearchParams(searchParams);
     }
     return params;
 }
@@ -60,4 +56,16 @@ async function parseRequestBody(request: Request, type: string, required: boolea
     } else {
         return null;
     }
+}
+
+function parseSearchParams(searchParams: URLSearchParams): Record<string, string> {
+    const queryParamsObj: Record<string, string> = {};
+
+    for (const param of searchParams) {
+        const name: string = param[0];
+        const value: string = param[1];
+
+        queryParamsObj[name] = value;
+    }
+    return queryParamsObj;
 }
