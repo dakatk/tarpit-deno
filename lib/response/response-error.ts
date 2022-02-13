@@ -229,7 +229,23 @@ export class TooManyRequestsError extends ResponseError {
     }
 }
 
-// TODO 431 451
+/**
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/431 | 431} "Request Header Fields Too Large" error
+ */
+export class RequestHeaderFieldsTooLargeError extends ResponseError {
+    constructor(message?: string) {
+        super(message || '(431) REQUEST HEADER FIELDS TOO LARGE', 431);
+    }
+}
+
+/**
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/451 | 451} "Unavailable For Legal Reasons" error
+ */
+export class UnavailableForLegalReasonsError extends ResponseError {
+    constructor(message?: string) {
+        super(message || '(451) UNAVAILABLE FOR LEGAL REASONS', 451);
+    }
+}
 
 //===============================================================
 // 500 Response errors:

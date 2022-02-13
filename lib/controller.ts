@@ -1,6 +1,8 @@
 import { _ENDPOINT_DECORATOR_META_KEY, RouteMetadata, DecoratorRouteMetadata } from './metadata.ts';
 import "https://deno.land/x/reflection/mod.ts";
 
+// TODO path variables/path variable matching
+
 /**
  * Initial logic needed for a controller class to resolve it's mapped routes.
  * All controller classes must extends this class, or they won't work work properly

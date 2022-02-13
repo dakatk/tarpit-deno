@@ -80,4 +80,14 @@ function resolveStaticFilePath(filePath: string) {
     return `${staticFileRoot}${filePath}`;
 }
 
-// TODO NoContentResponse (?)
+export class NoContentResponse extends Response {
+    constructor(text?: string) {
+        super(text || '204 No Content', {
+            headers: {
+                'Content-Type': 'text/plain'
+            },
+            status: 204,
+            statusText: 'No Content'
+        })
+    }
+}

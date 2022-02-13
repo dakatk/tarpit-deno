@@ -27,6 +27,7 @@ export interface LifetimeCallbacks {
 }
 
 // TODO Controller method checking
+// TODO Create sample middleware (auth, denodb?)
 
 /**
  * This is where it all begins...
