@@ -1,7 +1,12 @@
-## TARPIT MVC
+## Tarpit Web API
 
-Tarpit is a server-side API library for Deno modeled after ASP.NET / Spring Boot
+"Omitting stupidity, but adding more options than others" - Me, 2022
+
+### What is it? 
+
+Tarpit is a web API for Deno modeled after ASP.NET / Spring Boot
 
 ### Why does this exist?
 
-Because I thought it would be fun to try to get a familiar API setup working in a server-side Typescript project with Deno
+1. Because I thought it would be fun to make
+2. While other MVC/web API libraries and frameworks provide a variety of features, many of which I find to be useful/desirable on their own, I've often found that there's one or two almost deal-breaking features that make me wish I was using a different one. In short, Tarpit is basically my wishlist come to life for a web API.

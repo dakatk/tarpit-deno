@@ -23,8 +23,10 @@ export interface LifetimeCallbacks {
     /**
      * Executed after server is closed.
      */
-    close?: (signal: Deno.Signal) => void; 
+    close?: (signal: Deno.Signal) => void;
 }
+
+// TODO Controller method checking
 
 /**
  * This is where it all begins...

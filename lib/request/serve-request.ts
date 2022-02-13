@@ -1,4 +1,4 @@
-import { NotImplementedError, BadGatewayError } from '../response/response-error.ts';
+import { MethodNotAllowedError, BadGatewayError } from '../response/response-error.ts';
 import { FileResponse } from '../response/response-types.ts';
 import { EndpointData } from '../factory/endpoints-factory.ts';
 import { ControllerBase } from '../controller.ts';
@@ -27,7 +27,7 @@ export async function parseRequestUrl(request: Request, controllerEndpoints: End
         const queryParams: Record<string, string> = parseSearchParams(searchParams);
 
         if (!(method in routeActions)) {
-            throw new NotImplementedError(`Invalid request method for '${pathname}': '${method}'`);
+            throw new MethodNotAllowedError(`Invalid request method for '${pathname}': '${method}'`);
         }
         return await responseFromController(method, routeActions, instance, request, queryParams);
     }

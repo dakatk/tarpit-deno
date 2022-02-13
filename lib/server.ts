@@ -2,6 +2,8 @@ import { HttpsConfig } from './config.ts';
 
 type Callback = (request: Request) => Promise<Response>;
 
+// TODO Throw errors for too many/too large requests
+
 /**
  * {@link https://deno.land/manual/examples/http_server}
  */
@@ -35,6 +37,7 @@ function createServer(port: number, httpsConfig?: HttpsConfig): Deno.Listener | 
 async function serveHttp(callback: Callback, conn: Deno.Conn) {
     const httpConn = Deno.serveHttp(conn);
 
+    // TODO DOS/DDOS protection
     for await (const requestEvent of httpConn) {
         const request: Request = requestEvent.request;
         const response: Response = await callback(request);

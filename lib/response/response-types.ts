@@ -79,3 +79,5 @@ function resolveStaticFilePath(filePath: string) {
     }
     return `${staticFileRoot}${filePath}`;
 }
+
+// TODO NoContentResponse (?)
