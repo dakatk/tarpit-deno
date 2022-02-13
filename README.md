@@ -1,7 +1,5 @@
 ## Tarpit Web API
 
-"Omitting stupidity, but adding more options than others" - Me, 2022
-
 ### What is it? 
 
 Tarpit is a web API for Deno modeled after ASP.NET / Spring Boot
