@@ -5,7 +5,7 @@ import {
     ControllerMetadata,
     DependencyClass
 } from '../metadata.ts';
-import "https://deno.land/x/reflection/mod.ts";
+import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 interface Type<T> {
     new (...args: any[]): T;

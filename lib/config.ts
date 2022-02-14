@@ -1,4 +1,4 @@
-import { parse, Args } from 'https://deno.land/std/flags/mod.ts';
+import { parse, Args } from 'https://deno.land/std@0.125.0/flags/mod.ts';
 
 /**
  * Data needed for resolving server connections if using HTTPS.
@@ -39,6 +39,10 @@ export interface ServerConfig {
      * No value provided by default.
      */
     https?: HttpsConfig;
+    /**
+     * 
+     */
+    devMode?: boolean;
     [key: string]: any;
 }
 

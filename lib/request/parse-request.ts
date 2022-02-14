@@ -5,7 +5,7 @@ import {
     BodyMetadata, 
     QueryMetadata
 } from '../metadata.ts';
-import "https://deno.land/x/reflection/mod.ts";
+import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 export async function parseBodyAndQuery(request: Request, searchParams: URLSearchParams, target: any, key: string, length: number): Promise<any[]> {
     const params = new Array<any>(length);

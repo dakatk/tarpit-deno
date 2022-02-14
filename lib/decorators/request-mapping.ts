@@ -1,5 +1,5 @@
 import { _ENDPOINT_DECORATOR_META_KEY, DecoratorRouteMetadata } from '../metadata.ts';
-import "https://deno.land/x/reflection/mod.ts";
+import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 /**
  * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET | GET} request mapping for controller methods.

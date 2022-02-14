@@ -1,5 +1,5 @@
 import { _QUERY_DECORATOR_META_KEY, QueryMetadata } from '../metadata.ts';
-import "https://deno.land/x/reflection/mod.ts";
+import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 export function QueryParams() {
     return (target: any, key: string, index: number) => {

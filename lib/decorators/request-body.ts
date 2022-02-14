@@ -1,5 +1,5 @@
 import { _BODY_DECORATOR_META_KEY, BodyMetadata } from '../metadata.ts';
-import "https://deno.land/x/reflection/mod.ts";
+import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 /**
  * Populates with the {@link Request | request} body as {@link ArrayBuffer | an array buffer}.

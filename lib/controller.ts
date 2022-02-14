@@ -1,5 +1,5 @@
 import { _ENDPOINT_DECORATOR_META_KEY, RouteMetadata, DecoratorRouteMetadata } from './metadata.ts';
-import "https://deno.land/x/reflection/mod.ts";
+import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 // TODO path variables/path variable matching
 
