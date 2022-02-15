@@ -38,10 +38,14 @@ async function serveHttp(callback: Callback, conn: Deno.Conn) {
 
     // TODO Request rate/size limiter
     for await (const requestEvent of httpConn) {
+        const start = Date.now();
         const request: Request = requestEvent.request;
         const response: Response = await callback(request);
 
+        if (Logger.enabled) {
+            Logger.queue(`Response took ${Date.now() - start} ms`);
+            await Logger.flush();
+        }
         requestEvent.respondWith(response);
-        await Logger.flush();
     }
 }

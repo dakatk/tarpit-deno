@@ -1,5 +1,6 @@
 import { RouteMetadata } from '../metadata.ts';
 import { ControllerBase } from '../controller.ts';
+import { Logger } from '../logger.ts';
 
 /**
  * Compiled data for mapped routes and their corresponding 
@@ -44,12 +45,42 @@ export class EndpointsFactory {
             instances: {}
         };
         for (const controller of this.controllers) {
-            for (const [key, routeMeta] of Object.entries(controller._routesMetadata)) {
+            for (const [key, routeMetadata] of Object.entries(controller._routesMetadata)) {
                 const prevRouteMetadata = endpointMethods.routeMetadata[key] || {};
-                endpointMethods.routeMetadata[key] = {...prevRouteMetadata, ...routeMeta};
+
+                if (Logger.enabled) {
+                    const controllerName = controller.constructor.name;
+                    const prevControllerName = endpointMethods.instances[key]?.constructor.name;
+
+                    this.checkExisting(routeMetadata, prevRouteMetadata, controllerName, prevControllerName, key);
+                }
+                endpointMethods.routeMetadata[key] = {...prevRouteMetadata, ...routeMetadata};
                 endpointMethods.instances[key] = controller;
             }
         }
         return endpointMethods;
+    }
+
+    private checkExisting(
+        routeMetadata: Record<string, (...args: any[]) => Promise<Response>>, 
+        prevRouteMetadata: Record<string, (...args: any[]) => Promise<Response>>, 
+        controllerName: string, 
+        prevControllerName: string, 
+        route: string
+    ) {
+        const existingKeys: string[] = Object.keys(prevRouteMetadata);
+        if (!existingKeys.length) {
+            return;
+        }
+
+        for (const key of existingKeys) {
+            if (key in routeMetadata) {
+                const prevCallback: string = prevRouteMetadata[key].name;
+                const callback: string = routeMetadata[key].name;
+
+                Logger.queue(`WARNING: '${controllerName}.${callback}' is being mapped by endpoint '${key} ${route}', 
+                              which was previous mapped to '${prevControllerName}.${prevCallback}'`, true);
+            }
+        }
     }
 }

@@ -21,6 +21,8 @@ export async function parseRequestUrl(request: Request, controllerEndpoints: End
     const { pathname, searchParams } = new URL(request.url);
     const routeActions: RouteActions = controllerEndpoints.routeMetadata[pathname];
 
+    // TODO Check if route matches parameterized controller routes
+
     if (routeActions) {
         const method: string = request.method;
         const instance: ControllerBase = controllerEndpoints.instances[pathname];

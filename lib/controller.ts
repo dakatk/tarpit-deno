@@ -1,7 +1,6 @@
 import { _ENDPOINT_DECORATOR_META_KEY, RouteMetadata, DecoratorRouteMetadata } from './metadata.ts';
+import { Logger } from './logger.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
-
-// TODO path variables/path variable matching
 
 /**
  * Initial logic needed for a controller class to resolve it's mapped routes.
@@ -32,10 +31,16 @@ export class ControllerBase {
                 endpoint = '/' + endpoint;
             }
 
+            const method = metadata.method;
+            const callback = metadata.callback;
+
             if (!(endpoint in this.routesMeta)) {
                 this.routesMeta[endpoint] = {};
+            } else if (Logger.enabled && method in this.routesMeta[endpoint]) {
+                const prevCallback = this.routesMeta[endpoint][method];
+                Logger.writeAndFlushSync(`WARNING: '${method} ${endpoint}' exists on '${prevCallback.name}' and is being overwritten by '${callback.name}'`, true)
             }
-            this.routesMeta[endpoint][metadata.method] = metadata.callback;
+            this.routesMeta[endpoint][method] = callback;
         }
     }
 

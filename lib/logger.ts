@@ -4,23 +4,23 @@ interface Line {
 }
 
 export class Logger {
-    private static enabled = true;
+    private static enabledFlag = true;
     private static buffer: Array<Line> = [];
 
     static disable() {
-        this.enabled = false;
+        this.enabledFlag = false;
         this.buffer = [];
     }
 
     static queue(message: string, error = false) {
-        if (!this.enabled) {
+        if (!this.enabledFlag) {
             return;
         }
         this.buffer.push({ message, error });
     }
 
     static async flush() {
-        if (!this.enabled) {
+        if (!this.enabledFlag) {
             return;
         }
         while (this.buffer.length) {
@@ -30,5 +30,14 @@ export class Logger {
 
             await output.write(message);
         }
+    }
+
+    static writeAndFlushSync(message = '', error = false) {
+        const output = error ? Deno.stderr : Deno.stdout;
+        output.writeSync(new TextEncoder().encode(message));
+    }
+
+    static get enabled() {
+        return this.enabledFlag;
     }
 }

@@ -44,8 +44,8 @@ export interface ServerConfig {
      * These features include:
      * 
      * 1. Warnings about misplacement/misuse of certain decorators 
-     * 2. Warnings when controller methods aren't used (dead code) [WIP]
-     * 3. Console logging for most events, including response times [WIP]
+     * 2. Warnings when controller routes overwrite each other
+     * 3. Console logging for most events [WIP], including response times
      * 
      * Setting this flag will most likely slow down the application somewhat
      * due to all the checks/logging this enables, thereofre it's recommended

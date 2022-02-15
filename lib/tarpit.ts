@@ -27,7 +27,6 @@ export interface LifetimeCallbacks {
     close?: (signal: Deno.Signal) => void;
 }
 
-// TODO Controller method checking
 // TODO Create sample middleware (auth, denodb?)
 
 /**
@@ -96,6 +95,7 @@ export class Tarpit {
         const httpsConfig: HttpsConfig | undefined = serverConfig.useHttps ? serverConfig.https : undefined;
         const port: number = serverConfig.port || -1;
 
+        await Logger.flush();
         await serve(async request => {
             return await handleRequest(request, controllerEndpoints, lifetimeCallbacks?.error);
         }, port, httpsConfig);
