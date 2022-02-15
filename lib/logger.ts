@@ -26,7 +26,7 @@ export class Logger {
         while (this.buffer.length) {
             const line = this.buffer.pop();
             const output = line?.error ? Deno.stderr : Deno.stdout;
-            const message = new TextEncoder().encode(line?.message || '');
+            const message = new TextEncoder().encode((line?.message || '') + '\n');
 
             await output.write(message);
         }
@@ -34,7 +34,7 @@ export class Logger {
 
     static writeAndFlushSync(message = '', error = false) {
         const output = error ? Deno.stderr : Deno.stdout;
-        output.writeSync(new TextEncoder().encode(message));
+        output.writeSync(new TextEncoder().encode(message + '\n'));
     }
 
     static get enabled() {

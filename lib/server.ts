@@ -43,7 +43,7 @@ async function serveHttp(callback: Callback, conn: Deno.Conn) {
         const response: Response = await callback(request);
 
         if (Logger.enabled) {
-            Logger.queue(`Response took ${Date.now() - start} ms`);
+            Logger.queue(`Response took ${Date.now() - start} ms.`);
             await Logger.flush();
         }
         requestEvent.respondWith(response);

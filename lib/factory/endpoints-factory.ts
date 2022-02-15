@@ -78,8 +78,7 @@ export class EndpointsFactory {
                 const prevCallback: string = prevRouteMetadata[key].name;
                 const callback: string = routeMetadata[key].name;
 
-                Logger.queue(`WARNING: '${controllerName}.${callback}' is being mapped by endpoint '${key} ${route}', 
-                              which was previous mapped to '${prevControllerName}.${prevCallback}'`, true);
+                Logger.queue(`WARNING: Endpoint '${key} ${route}' has been re-mapped from '${prevControllerName}.${prevCallback}' to '${controllerName}.${callback}'.`, true);
             }
         }
     }
