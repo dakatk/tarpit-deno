@@ -4,6 +4,7 @@ import { EndpointsFactory, EndpointData } from './factory/endpoints-factory.ts';
 import { DependencyFactory } from './factory/dependency-factory.ts';
 import { ControllerClass, DependencyClass } from './metadata.ts';
 import { ServerConfig, ConfigHelper, HttpsConfig } from './config.ts';
+import { Logger } from './logger.ts';
 import { ControllerBase } from './controller.ts';
 import { serve } from './server.ts';
 
@@ -37,15 +38,18 @@ export class Tarpit {
     private static defaultConfig: ServerConfig = {
         port: 8000,
         staticDir: 'public',
-        useHttps: false
+        useHttps: false,
+        devMode: false
     };
 
     /**
-     * @param module `{ 
-     *   controllers: List of controller classes.
-     *   dependencies: List of all other injectable classes used
-     *   as dependencies by controllers or other injectables.
-     * }`
+     * @param module ```typescript
+     * { 
+     * controllers: 'List of controller classes'.
+     * dependencies: 'List of all other injectable classes used as dependencies\
+     *                  by controllers or other injectables.'
+     * }
+     * ```
      */
     static injectModule(module: { controllers: Array<ControllerClass>, dependencies: Array<DependencyClass> }) {
         const factory: DependencyFactory = new DependencyFactory(module.dependencies);
@@ -77,10 +81,16 @@ export class Tarpit {
         });
 
         serverConfig = {
-            ...serverConfig,
-            ...this.defaultConfig
+            ...this.defaultConfig,
+            ...serverConfig
         };
         ConfigHelper.setConfig(serverConfig, configureCli);
+
+        if (!serverConfig.devMode) {
+            Logger.disable();
+        } else {
+            await Logger.flush();
+        }
 
         const controllerEndpoints: EndpointData = this.endpointsFactory.all;
         const httpsConfig: HttpsConfig | undefined = serverConfig.useHttps ? serverConfig.https : undefined;

@@ -40,22 +40,36 @@ export interface ServerConfig {
      */
     https?: HttpsConfig;
     /**
+     * If true, runs the server with developer mode features enabled.
+     * These features include:
      * 
+     * 1. Warnings about misplacement/misuse of certain decorators 
+     * 2. Warnings when controller methods aren't used (dead code) [WIP]
+     * 3. Console logging for most events, including response times [WIP]
+     * 
+     * Setting this flag will most likely slow down the application somewhat
+     * due to all the checks/logging this enables, thereofre it's recommended
+     * to only set this flag for local development. Tarpit doesn't have a
+     * builtin way to detect if the application has been started in production
+     * mode or not, so it's recommended to set this flag based on input
+     * from the command line/a custom environment variable. Defaults to `false`.
      */
     devMode?: boolean;
     [key: string]: any;
 }
 
 /**
- * 
+ * Wrapper for reading keys from server config
  */
 export class ConfigHelper {
     private static serverConfig: ServerConfig;
 
     /**
+     * Should NOT be called outside of `Tarpit.createServer`
      * 
-     * @param serverOptions 
-     * @param allowCli 
+     * @param serverOptions Global server config
+     * @param allowCli Populate extra keys to server config 
+     * from CLI arguments if `true`
      */
     static setConfig(serverOptions: ServerConfig, allowCli: boolean) {
         this.serverConfig = serverOptions;
@@ -80,18 +94,19 @@ export class ConfigHelper {
     }
 
     /**
+     * Check if `key` exists within the server config
      * 
-     * @param key 
-     * @returns 
+     * @param key Server config key
+     * @returns `true` if `key` exists in server config, 
+     * `false` otherwise
      */
     static hasKey(key: string) {
         return key in this.serverConfig;
     }
 
     /**
-     * 
-     * @param key 
-     * @returns 
+     * @param key Server config key
+     * @returns Associated value for `key` in server config
      */
     static getValue(key: string) {
         return this.serverConfig[key];

@@ -1,4 +1,5 @@
 import { ConfigHelper } from '../config.ts';
+import { Logger } from '../logger.ts';
 
 // FIXME Works, but only with static members
 /**
@@ -12,7 +13,7 @@ export function Config(propertyNames: string | string[]) {
     }
     return (target: any, key: string) => {
         if (target.constructor.name !== 'Function') {
-            console.error("'Config' decorator is only applicable to static members");
+            Logger.queue("ERROR: 'Config' decorator is only applicable to static members", true);
             return;
         }
         const name = key.toString();

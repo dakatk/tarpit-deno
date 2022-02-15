@@ -1,4 +1,5 @@
 import { _BODY_DECORATOR_META_KEY, BodyMetadata } from '../metadata.ts';
+import { Logger } from '../logger.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 /**
@@ -63,7 +64,7 @@ export function TextBody(required = false) {
 
 function defineBodyMetadata(target: any, key: string, index: number, type: string, required: boolean) {
     if (Reflect.hasMetadata(_BODY_DECORATOR_META_KEY, target.constructor, key)) {
-        console.error("WARNING: Only one '@*Body' annotation allowed per controller method. All others after the first one will be ignored.");
+        Logger.queue("WARNING: Only one '@*Body' annotation allowed per controller method. All others after the first one will be ignored.", true);
         return;
     }
     const bodyMetadata: BodyMetadata = { type, index, required };
