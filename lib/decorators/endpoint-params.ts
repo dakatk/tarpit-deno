@@ -1,0 +1,32 @@
+import { Logger } from '../logger.ts';
+import { 
+    _QUERY_DECORATOR_META_KEY,
+    _PARAM_ROUTE_DECORATOR_META_KEY,
+    QueryMetadata,
+    ParamRouteMetadata
+} from '../metadata.ts';
+import 'https://deno.land/x/reflection@0.0.2/mod.ts';
+
+export function QueryParams() {
+    return (target: any, key: string, index: number) => {
+        if (Reflect.hasMetadata(_QUERY_DECORATOR_META_KEY, target.constructor, key)) {
+            Logger.queue("WARNING: Only one '@QueryParams' annotation allowed per controller method. All others after the first one will be ignored.", true);
+            return;
+        }
+
+        const queryMetadata: QueryMetadata = { index };
+        Reflect.defineMetadata(_QUERY_DECORATOR_META_KEY, queryMetadata, target.constructor, key);
+    }
+}
+
+export function RouteParams() {
+    return (target: any, key: string, index: number) => {
+        if (Reflect.hasMetadata(_PARAM_ROUTE_DECORATOR_META_KEY, target.constructor, key)) {
+            Logger.queue("WARNING: Only one '@RouteParams' annotation allowed per controller method. All others after the first one will be ignored.", true);
+            return;
+        }
+
+        const paramRouteMetadata: ParamRouteMetadata = { index };
+        Reflect.defineMetadata(_PARAM_ROUTE_DECORATOR_META_KEY, paramRouteMetadata, target.constructor, key);
+    }
+}

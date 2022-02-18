@@ -1,6 +1,11 @@
 import { RouteMetadata } from '../metadata.ts';
 import { ControllerBase } from '../controller.ts';
 import { Logger } from '../logger.ts';
+import { 
+    RouteSegment,
+    isParameterizedRoute,
+    compileParametrizedRoute
+} from '../request/route-params.ts';
 
 /**
  * Compiled data for mapped routes and their corresponding 
@@ -16,6 +21,10 @@ export interface EndpointData {
      * Controller class instance for each mapped route
      */
     instances: Record<string, ControllerBase>;
+    /**
+     * Compiled parameterized routes, keyed by raw controller endpoint path
+     */
+    paramRoutes: Record<string, RouteSegment[]>;
 }
 
 /**
@@ -42,20 +51,25 @@ export class EndpointsFactory {
     get all(): EndpointData {
         const endpointMethods: EndpointData = {
             routeMetadata: {},
-            instances: {}
+            instances: {},
+            paramRoutes: {}
         };
         for (const controller of this.controllers) {
-            for (const [key, routeMetadata] of Object.entries(controller._routesMetadata)) {
-                const prevRouteMetadata = endpointMethods.routeMetadata[key] || {};
+            for (const [route, routeMetadata] of Object.entries(controller._routesMetadata)) {
+                const prevRouteMetadata = endpointMethods.routeMetadata[route] || {};
 
                 if (Logger.enabled) {
                     const controllerName = controller.constructor.name;
-                    const prevControllerName = endpointMethods.instances[key]?.constructor.name;
+                    const prevControllerName = endpointMethods.instances[route]?.constructor.name;
 
-                    this.checkExisting(routeMetadata, prevRouteMetadata, controllerName, prevControllerName, key);
+                    this.checkExisting(routeMetadata, prevRouteMetadata, controllerName, prevControllerName, route);
                 }
-                endpointMethods.routeMetadata[key] = {...prevRouteMetadata, ...routeMetadata};
-                endpointMethods.instances[key] = controller;
+
+                if (isParameterizedRoute(route)) {
+                    endpointMethods.paramRoutes[route] = compileParametrizedRoute(route);
+                }
+                endpointMethods.routeMetadata[route] = {...prevRouteMetadata, ...routeMetadata};
+                endpointMethods.instances[route] = controller;
             }
         }
         return endpointMethods;

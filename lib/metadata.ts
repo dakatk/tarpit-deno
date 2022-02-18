@@ -5,6 +5,7 @@ export const _INJECTABLE_DECORATOR_META_KEY = '_INJECTABLE_DECORATOR_META_KEY';
 export const _CONTROLLER_DECORATOR_META_KEY = '_CONTROLLER_DECORATOR_META_KEY';
 export const _BODY_DECORATOR_META_KEY = '_BODY_DECORATOR_META_KEY';
 export const _QUERY_DECORATOR_META_KEY = '_QUERY_DECORATOR_META_KEY';
+export const _PARAM_ROUTE_DECORATOR_META_KEY = '_PARAM_ROUTE_DECORATOR_META_KEY';
 
 export type RouteMetadata = Record<string, Record<string, (...args: any[]) => Promise<Response>>>;
 export type ControllerClass = new (...args: any[]) => ControllerBase;
@@ -32,5 +33,9 @@ export interface BodyMetadata {
 }
 
 export interface QueryMetadata {
+    index: number;
+}
+
+export interface ParamRouteMetadata {
     index: number;
 }

@@ -3,6 +3,7 @@ import { FileResponse } from '../response/response-types.ts';
 import { EndpointData } from '../factory/endpoints-factory.ts';
 import { ControllerBase } from '../controller.ts';
 import { parseBodyAndQuery } from './parse-request.ts';
+import { RouteParams, checkParameterizedRoute } from './route-params.ts';
 
 type RouteActions = Record<string, (...args: any[]) => Promise<Response>>;
 
@@ -19,23 +20,38 @@ type RouteActions = Record<string, (...args: any[]) => Promise<Response>>;
  */
 export async function parseRequestUrl(request: Request, controllerEndpoints: EndpointData): Promise<Response> {
     const { pathname, searchParams } = new URL(request.url);
-    const routeActions: RouteActions = controllerEndpoints.routeMetadata[pathname];
-
-    // TODO Check if route matches parameterized controller routes
-
-    if (routeActions) {
-        const method: string = request.method;
-        const instance: ControllerBase = controllerEndpoints.instances[pathname];
-
-        if (!(method in routeActions)) {
-            throw new MethodNotAllowedError(`Invalid request method for '${pathname}': '${method}'`);
-        }
-        return await responseFromController(method, routeActions, instance, request, searchParams);
+    const controllerResponse: Response | undefined = await checkControllerEndpoint(pathname, searchParams, request, controllerEndpoints);
+    if (controllerResponse !== undefined) {
+        return controllerResponse;
     }
 
     return await new Promise(resolve => 
         resolve(new FileResponse(pathname))
     );
+}
+
+async function checkControllerEndpoint(route: string, searchParams: URLSearchParams, request: Request, controllerEndpoints: EndpointData): Promise<Response | undefined> {
+    let routeParams: RouteParams | undefined = undefined;
+    for (const [fullRoute, splitRoute] of Object.entries(controllerEndpoints.paramRoutes)) {
+        routeParams = checkParameterizedRoute(route, splitRoute);
+        if (routeParams) {
+            route = fullRoute;
+            break;
+        }
+    }
+
+    const routeActions: RouteActions = controllerEndpoints.routeMetadata[route];
+    if (!routeActions) {
+        return undefined;
+    }
+
+    const method: string = request.method;
+    const instance: ControllerBase = controllerEndpoints.instances[route];
+
+    if (!(method in routeActions)) {
+        throw new MethodNotAllowedError(`Invalid request method for '${route}': '${method}'`);
+    }
+    return await responseFromController(method, routeActions, instance, request, searchParams, routeParams || {});
 }
 
 /**
@@ -51,14 +67,14 @@ export async function parseRequestUrl(request: Request, controllerEndpoints: End
  * a body, otherwise `undefined`
  * @returns The {@link Response | response} data returned from the controller method
  */
-async function responseFromController(method: string, routeActions: RouteActions, instance: ControllerBase, requestData: Request, searchParams: URLSearchParams) {
+async function responseFromController(method: string, routeActions: RouteActions, instance: ControllerBase, requestData: Request, searchParams: URLSearchParams, routeParams: RouteParams): Promise<Response> {
     const callback: (...args: any[]) => Promise<Response> = routeActions[method];
     
     const classConstructor = instance.constructor;
     const length = callback.length;
     const name = callback.name;
 
-    const params: any[] = await parseBodyAndQuery(requestData, searchParams, classConstructor, name, length);
+    const params: any[] = await parseBodyAndQuery(requestData, searchParams, routeParams, classConstructor, name, length);
     const responseValue = await callback.call(instance, ...params);
 
     if (!(responseValue instanceof Response)) {

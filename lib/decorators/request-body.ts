@@ -67,6 +67,7 @@ function defineBodyMetadata(target: any, key: string, index: number, type: strin
         Logger.queue("WARNING: Only one '@*Body' annotation allowed per controller method. All others after the first one will be ignored.", true);
         return;
     }
+    
     const bodyMetadata: BodyMetadata = { type, index, required };
     Reflect.defineMetadata(_BODY_DECORATOR_META_KEY, bodyMetadata, target.constructor, key);
 }

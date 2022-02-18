@@ -2,6 +2,13 @@ const paramRegex = /^{[A-Za-z_-]+}$/;
 const subRouteRegex = /\/{[A-Za-z_-]+}\//;
 
 /**
+ * 
+ */
+export interface RouteParams {
+    [key: string]: string
+}
+
+/**
  * Individual route segment
  */
 export interface RouteSegment {
@@ -49,8 +56,8 @@ export function compileParametrizedRoute(route: string): RouteSegment[] {
  * @param compiled 
  * @returns 
  */
-export function checkParameterizedRoute(route: string, compiled: RouteSegment[]): any | undefined {
-    const params: any = {};
+export function checkParameterizedRoute(route: string, compiled: RouteSegment[]): RouteParams | undefined {
+    const params: RouteParams = {};
     const routeParts: string[] = route.split('/').filter((value: string) => value !== '');
     if (routeParts.length !== compiled.length) {
         return undefined;
