@@ -7,6 +7,7 @@ import {
     ControllerClass
 } from '../metadata.ts';
 import { ControllerBase } from '../controller.ts';
+import { Logger } from '../logger.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 /**
@@ -35,7 +36,7 @@ export class DependencyFactory {
         const dependency = this.singletons[name] || this.dependencies[name];
 
         if (!dependency) {
-            console.error(`Dependency not injected: '${name}'`);
+            Logger.queue(`Dependency not injected: '${name}'`, 'error');
             return;
         }
         else if (name in this.singletons) {
@@ -44,7 +45,7 @@ export class DependencyFactory {
 
         const metadata: InjectableMetadata | undefined = Reflect.getMetadata(_INJECTABLE_DECORATOR_META_KEY, dependencyClass);
         if (!metadata) {
-            console.error(`Dependency not marked as Injectable: '${name}'`);
+            Logger.queue(`Dependency not marked as Injectable: '${name}'`, 'error');
             return;
         }
 
@@ -74,7 +75,7 @@ export class DependencyFactory {
         for (const controllerClass of controllerClasses) {
             const metadata: ControllerMetadata | undefined = Reflect.getMetadata(_CONTROLLER_DECORATOR_META_KEY, controllerClass);
             if (!metadata) {
-                console.error(`Dependency not marked as Controller: '${controllerClass.name}'`);
+                Logger.queue(`Dependency not marked as Controller: '${controllerClass.name}'`, 'error');
                 continue;
             }
             

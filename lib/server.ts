@@ -2,6 +2,7 @@ import { HttpsConfig } from './config.ts';
 import { Logger } from './logger.ts';
 
 type Callback = (request: Request) => Promise<Response>;
+const border = '===============================================';
 
 /**
  * {@link https://deno.land/manual/examples/http_server}
@@ -11,7 +12,7 @@ export async function serve(callback: Callback, port: number, httpsConfig?: Http
         throw new Error("'port' value must be a positive integer");
     }
     const server = createServer(port, httpsConfig);
-    console.log(`Tarpit server running at ${httpsConfig ? 'https' : 'http'}://localhost:${port}`);
+    Logger.writeAndFlushSync(`\n<white>${border}</white>\n<green>Tarpit server running at</green> <white><u>${httpsConfig ? 'https' : 'http'}://localhost:${port}</u><white>\n${border}\n`);
 
     for await (const conn of server) {
         serveHttp(callback, conn);
@@ -43,7 +44,7 @@ async function serveHttp(callback: Callback, conn: Deno.Conn) {
         const response: Response = await callback(request);
 
         if (Logger.enabled) {
-            Logger.queue(`Response took ${Date.now() - start} ms.`);
+            Logger.queue(`Response from <white><u>${request.url}</u></white> <green>took ${Date.now() - start} ms.</green>`);
             await Logger.flush();
         }
         requestEvent.respondWith(response);

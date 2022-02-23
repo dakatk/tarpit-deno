@@ -32,17 +32,21 @@ export async function parseRequestUrl(request: Request, controllerEndpoints: End
 
 async function checkControllerEndpoint(route: string, searchParams: URLSearchParams, request: Request, controllerEndpoints: EndpointData): Promise<Response | undefined> {
     let routeParams: RouteParams | undefined = undefined;
-    for (const [fullRoute, splitRoute] of Object.entries(controllerEndpoints.paramRoutes)) {
-        routeParams = checkParameterizedRoute(route, splitRoute);
-        if (routeParams) {
-            route = fullRoute;
-            break;
-        }
-    }
+    let routeActions: RouteActions = controllerEndpoints.routeMetadata[route];
 
-    const routeActions: RouteActions = controllerEndpoints.routeMetadata[route];
     if (!routeActions) {
-        return undefined;
+        for (const [fullRoute, splitRoute] of Object.entries(controllerEndpoints.paramRoutes)) {
+            routeParams = checkParameterizedRoute(route, splitRoute);
+            if (routeParams) {
+                routeActions = controllerEndpoints.routeMetadata[fullRoute];
+                route = fullRoute;
+                break;
+            }
+        }
+        
+        if (!routeActions || routeParams === undefined) {
+            return undefined;
+        }
     }
 
     const method: string = request.method;

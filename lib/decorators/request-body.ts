@@ -64,7 +64,7 @@ export function TextBody(required = false) {
 
 function defineBodyMetadata(target: any, key: string, index: number, type: string, required: boolean) {
     if (Reflect.hasMetadata(_BODY_DECORATOR_META_KEY, target.constructor, key)) {
-        Logger.queue("WARNING: Only one '@*Body' annotation allowed per controller method. All others after the first one will be ignored.", true);
+        Logger.queue("Only one '@*Body' annotation allowed per controller method. All others after the first one will be ignored.", 'warning');
         return;
     }
     

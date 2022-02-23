@@ -1,5 +1,5 @@
 const paramRegex = /^{[A-Za-z_-]+}$/;
-const subRouteRegex = /\/{[A-Za-z_-]+}\//;
+const subRouteRegex = /\/{[A-Za-z_-]+}/;
 
 /**
  * 

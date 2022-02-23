@@ -13,7 +13,7 @@ export function Config(propertyNames: string | string[]) {
     }
     return (target: any, key: string) => {
         if (target.constructor.name !== 'Function') {
-            Logger.queue("ERROR: 'Config' decorator is only applicable to static members.", true);
+            Logger.queue("'Config' decorator is only applicable to static members.", 'error');
             return;
         }
         const name = key.toString();

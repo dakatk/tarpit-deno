@@ -4,7 +4,7 @@ import { EndpointsFactory, EndpointData } from './factory/endpoints-factory.ts';
 import { DependencyFactory } from './factory/dependency-factory.ts';
 import { ControllerClass, DependencyClass } from './metadata.ts';
 import { ServerConfig, ConfigHelper, HttpsConfig } from './config.ts';
-import { Logger } from './logger.ts';
+import { Logger, Color } from './logger.ts';
 import { ControllerBase } from './controller.ts';
 import { serve } from './server.ts';
 
@@ -42,6 +42,17 @@ export class Tarpit {
     };
 
     /**
+     * Console logging with color options
+     * 
+     * @param message 
+     * @param color 
+     * @param background 
+     */
+    static log(message: string, color: Color = 'white', background?: Color) {
+        Logger.writeAndFlushSyncColored(message, color, background);
+    }
+
+    /**
      * @param module ```typescript
      * { 
      * controllers: 'List of controller classes'.
@@ -53,6 +64,8 @@ export class Tarpit {
     static injectModule(module: { controllers: Array<ControllerClass>, dependencies: Array<DependencyClass> }) {
         const factory: DependencyFactory = new DependencyFactory(module.dependencies);
         const controllers: Array<ControllerBase> = factory.createControllers(module.controllers);
+
+        Logger.flush();
 
         this.endpointsFactory.addControllers(controllers);
     }

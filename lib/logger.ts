@@ -1,22 +1,37 @@
+import * as ink from 'https://deno.land/x/ink@1.3/mod.ts';
+
+export type Color = 'red' | 'green' | 'blue' | 'yellow' | 'magenta' | 'cyan' | 'white' | 'black';
+type Tag = 'red' | 'green' | 'yellow';
+
 interface Line {
     message: string;
-    error: boolean;
+    tag: Tag;
 }
+
+const tags: Record<string, Tag> = {
+    'error': 'red',
+    'warning': 'yellow',
+    'message': 'green'
+};
 
 export class Logger {
     private static enabledFlag = true;
     private static buffer: Array<Line> = [];
+
+    // TODO Mock output for testing
 
     static disable() {
         this.enabledFlag = false;
         this.buffer = [];
     }
 
-    static queue(message: string, error = false) {
+    static queue(message: string, type: 'error' | 'warning' | 'message' = 'message') {
         if (!this.enabledFlag) {
             return;
         }
-        this.buffer.push({ message, error });
+
+        const tag = tags[type];
+        this.buffer.push({ message, tag });
     }
 
     static async flush() {
@@ -25,16 +40,28 @@ export class Logger {
         }
         while (this.buffer.length) {
             const line = this.buffer.pop();
-            const output = line?.error ? Deno.stderr : Deno.stdout;
-            const message = new TextEncoder().encode((line?.message || '') + '\n');
+            const tag = line?.tag || 'green';
+            const message = ink.colorize(`<${tag}>${(line?.message || '')}</${tag}>\n`);
 
-            await output.write(message);
+            await Deno.stdout.write(new TextEncoder().encode(message));
         }
     }
 
-    static writeAndFlushSync(message = '', error = false) {
-        const output = error ? Deno.stderr : Deno.stdout;
-        output.writeSync(new TextEncoder().encode(message + '\n'));
+    static writeAndFlushSync(message: string, type: 'error' | 'warning' | 'message' = 'message') {
+        const tag = tags[type];
+        message = ink.colorize(`<${tag}>${(message)}</${tag}>\n`);
+
+        Deno.stdout.writeSync(new TextEncoder().encode(message));
+    }
+
+    static writeAndFlushSyncColored(message: string, color: Color = 'white', background?: Color) {
+        message = `<${color}>${(message)}</${color}>`;
+        if (background) {
+            message = `<bg-${background}>${(message)}</bg-${background}>`;
+        }
+        message = ink.colorize(message + '\n');
+
+        Deno.stdout.writeSync(new TextEncoder().encode(message));
     }
 
     static get enabled() {

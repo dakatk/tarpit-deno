@@ -10,7 +10,7 @@ import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 export function QueryParams() {
     return (target: any, key: string, index: number) => {
         if (Reflect.hasMetadata(_QUERY_DECORATOR_META_KEY, target.constructor, key)) {
-            Logger.queue("WARNING: Only one '@QueryParams' annotation allowed per controller method. All others after the first one will be ignored.", true);
+            Logger.queue("Only one '@QueryParams' annotation allowed per controller method. All others after the first one will be ignored.", 'warning');
             return;
         }
 
@@ -22,7 +22,7 @@ export function QueryParams() {
 export function RouteParams() {
     return (target: any, key: string, index: number) => {
         if (Reflect.hasMetadata(_PARAM_ROUTE_DECORATOR_META_KEY, target.constructor, key)) {
-            Logger.queue("WARNING: Only one '@RouteParams' annotation allowed per controller method. All others after the first one will be ignored.", true);
+            Logger.queue("Only one '@RouteParams' annotation allowed per controller method. All others after the first one will be ignored.", 'warning');
             return;
         }
 

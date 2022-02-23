@@ -38,7 +38,7 @@ export class ControllerBase {
                 this.routesMeta[endpoint] = {};
             } else if (Logger.enabled && method in this.routesMeta[endpoint]) {
                 const prevCallback = this.routesMeta[endpoint][method];
-                Logger.writeAndFlushSync(`WARNING: '${method} ${endpoint}' exists on '${prevCallback.name}' and is being overwritten by '${callback.name}'`, true)
+                Logger.writeAndFlushSync(`'${method} ${endpoint}' exists on '${prevCallback.name}' and is being overwritten by '${callback.name}'`, 'warning');
             }
             this.routesMeta[endpoint][method] = callback;
         }
