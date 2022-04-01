@@ -1,5 +1,5 @@
 import { _BODY_DECORATOR_META_KEY, BodyMetadata } from '../metadata.ts';
-import { Validator } from '../validation.ts';
+import { Validator, ObjValidator, StringValidator, ArrayValidator } from '../validation.ts';
 import { Logger } from '../logger.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
@@ -9,7 +9,7 @@ import 'https://deno.land/x/reflection@0.0.2/mod.ts';
  * @param required If `true`, an error is thrown when the {@link Request | request} 
  * has no {@link Request.body | body}. Defaults to `false`. 
  */
-export function ArrayBody(required = false, validator?: Validator) {
+export function ArrayBody<T>(required = false, validator?: ArrayValidator<T>) {
     return (target: any, key: string, index: number) => {
         defineBodyMetadata(target, key, index, 'arrayBuffer', required, validator);
     }
@@ -21,9 +21,9 @@ export function ArrayBody(required = false, validator?: Validator) {
  * @param required If `true`, an error is thrown when the {@link Request | request} 
  * has no {@link Request.body | body}. Defaults to `false`. 
  */
-export function RequestBody(required = false, validator?: Validator) {
+export function RequestBody(required = false) {
     return (target: any, key: string, index: number) => {
-        defineBodyMetadata(target, key, index, 'blob', required, validator);
+        defineBodyMetadata(target, key, index, 'blob', required);
     }
 }
 
@@ -33,9 +33,9 @@ export function RequestBody(required = false, validator?: Validator) {
  * @param required If `true`, an error is thrown when the {@link Request | request} 
  * has no {@link Request.body | body}. Defaults to `false`. 
  */
-export function FormDataBody(required = false, validator?: Validator) {
+export function FormDataBody(required = false) {
     return (target: any, key: string, index: number) => {
-        defineBodyMetadata(target, key, index, 'formData', required, validator);
+        defineBodyMetadata(target, key, index, 'formData', required);
     }
 }
 
@@ -45,7 +45,7 @@ export function FormDataBody(required = false, validator?: Validator) {
  * @param required If `true`, an error is thrown when the {@link Request | request} 
  * has no {@link Request.body | body}. Defaults to `false`. 
  */
-export function JsonBody(required = false, validator?: Validator) {
+export function JsonBody(required = false, validator?: ObjValidator) {
     return (target: any, key: string, index: number) => {
         defineBodyMetadata(target, key, index, 'json', required, validator);
     }
@@ -57,7 +57,7 @@ export function JsonBody(required = false, validator?: Validator) {
  * @param required If `true`, an error is thrown when the {@link Request | request} 
  * has no {@link Request.body | body}. Defaults to `false`. 
  */
-export function TextBody(required = false, validator?: Validator) {
+export function TextBody(required = false, validator?: StringValidator) {
     return (target: any, key: string, index: number) => {
         defineBodyMetadata(target, key, index, 'text', required, validator);
     }
