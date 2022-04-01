@@ -66,7 +66,7 @@ export class ArrayValidator<T> extends Validator {
 
         if (this.array || this.array!.length !== undefined) {
 
-            const equals = arrayEquals(value, this.array, this.exact);
+            const equals = arrayEquals(this.array, value, this.exact);
             if (!equals) {
                 Logger.queue(`Array ${value} does not match ${this.exact ? 'exact pattern' : 'pattern'} ${this.array}`);
             }
@@ -99,5 +99,60 @@ function arrayEquals<T>(a?: Array<T>, b?: Array<T>, checkLength = true): boolean
  * 
  */
 export class StringValidator extends Validator {
+    constructor(
+        private pattern?: string | RegExp, 
+        private exact: boolean = true, 
+        private maxLength?: number, 
+        private minLength?: number) {
+            super();
+    }
 
+    validate(value: string): boolean {
+        if ((this.maxLength === 0 || this.maxLength) && value.length > this.maxLength) {
+            Logger.queue(`Length of ${value.length} exceeds max length of ${this.maxLength}`);
+            return false;
+        }
+        
+        if ((this.minLength === 0 || this.minLength) && value.length < this.minLength) {
+            Logger.queue(`Length of ${value.length} is less than min length of ${this.minLength}`);
+            return false;
+        }
+
+        if (this.pattern || this.pattern!.length !== undefined) {
+            const equals = stringMatchesOrEquals(this.pattern, value, this.exact);
+            if (!equals) {
+                Logger.queue(`"${value}" does not ${this.exact ? 'equal' : 'match pattern'} ${this.pattern}`);
+            }
+            return equals;
+        }
+        return true;
+    }
+}
+
+function stringMatchesOrEquals(a?: string | RegExp, b?: string, exact = true): boolean {
+    if (a === null || a === undefined) {
+        return false;
+    }
+    else if (b === null || b === undefined) {
+        return false;
+    }
+
+    if (a.constructor.name === 'RegExp') {
+        const c = a as RegExp;
+        const matches = b.match(c);
+
+        if (matches === null) {
+            return false;
+        }
+        else if (exact && b !== matches[0]) {
+            return false;
+        }
+    }
+    else {
+        const c = a as string;
+        if ((exact && b != c) || !b.includes(c)) {
+            return false;
+        }
+    }
+    return true;
 }
