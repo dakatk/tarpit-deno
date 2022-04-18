@@ -21,12 +21,12 @@ export async function parseBodyAndQuery(request: Request, searchParams: URLSearc
         callbackParams[bodyMeta.index] = await parseRequestBody(request, bodyMeta.type, bodyMeta.required, bodyMeta.validator);
     }
     if (queryMeta) {
-        callbackParams[queryMeta.index] = parseSearchParams(searchParams, queryMeta!.validator);
+        callbackParams[queryMeta.index] = parseSearchParams(request.url, searchParams, queryMeta!.validator);
     }
     if (paramRouteMeta) {
         if (paramRouteMeta.validator) {
             if (!paramRouteMeta.validator.validate(routeParams)) {
-                throw new ServerError(''); // TODO Validation error message
+                throw new ServerError(`Route params failed validation (${request.url})`);
             }
         }
         callbackParams[paramRouteMeta.index] = routeParams;
@@ -36,7 +36,7 @@ export async function parseBodyAndQuery(request: Request, searchParams: URLSearc
 
 async function parseRequestBody(request: Request, type: string, required: boolean, validator?: Validator) {
     if (required && !request.body) {
-        throw new ServerError('Empty request body'); // TODO Better error message (?)
+        throw new ServerError(`Empty request body (${request.url})`);
     }
 
     let parsedBodyPromise: Promise<any> | null = null;
@@ -63,13 +63,13 @@ async function parseRequestBody(request: Request, type: string, required: boolea
     }
 
     if (parsedBodyPromise !== null) {
-        let parsedBody = await parsedBodyPromise.catch(_ => {
+        const parsedBody = await parsedBodyPromise.catch(_ => {
             throw new ServerError(`Request body could not be parsed as type '${type}'`);
         });
 
         if (validator) {
             if (!validator.validate(parsedBody)) {
-                throw new ServerError('') // TODO Error message
+                throw new ServerError(`Request body failed validation (${request.url})`);
             }
         }
         return parsedBody;
@@ -78,7 +78,7 @@ async function parseRequestBody(request: Request, type: string, required: boolea
     }
 }
 
-function parseSearchParams(searchParams: URLSearchParams, validator?: ObjValidator): Record<string, string> {
+function parseSearchParams(url: string, searchParams: URLSearchParams, validator?: ObjValidator): Record<string, string> {
     const queryParamsObj: Record<string, string> = {};
 
     for (const param of searchParams) {
@@ -90,7 +90,7 @@ function parseSearchParams(searchParams: URLSearchParams, validator?: ObjValidat
 
     if (validator) {
         if (!validator.validate(queryParamsObj)) {
-            throw new ServerError(''); // TODO Error message
+            throw new ServerError(`Query params failed validation (${url})`);
         }
     }
     return queryParamsObj;
