@@ -1,5 +1,6 @@
 import { ServerError } from '../response/response-error.ts';
 import { RouteParams } from './route-params.ts';
+import { Validator, ObjValidator } from '../validation.ts';
 import { 
     _BODY_DECORATOR_META_KEY,
     _QUERY_DECORATOR_META_KEY, 
@@ -17,55 +18,67 @@ export async function parseBodyAndQuery(request: Request, searchParams: URLSearc
     const paramRouteMeta: ParamRouteMetadata | undefined = Reflect.getMetadata(_PARAM_ROUTE_DECORATOR_META_KEY, target, key);
 
     if (bodyMeta) {
-        callbackParams[bodyMeta.index] = await parseRequestBody(request, bodyMeta.type, bodyMeta.required);
+        callbackParams[bodyMeta.index] = await parseRequestBody(request, bodyMeta.type, bodyMeta.required, bodyMeta.validator);
     }
     if (queryMeta) {
-        callbackParams[queryMeta.index] = parseSearchParams(searchParams);
+        callbackParams[queryMeta.index] = parseSearchParams(searchParams, queryMeta!.validator);
     }
     if (paramRouteMeta) {
+        if (paramRouteMeta.validator) {
+            if (!paramRouteMeta.validator.validate(routeParams)) {
+                throw new ServerError(''); // TODO Validation error message
+            }
+        }
         callbackParams[paramRouteMeta.index] = routeParams;
     }
     return callbackParams;
 }
 
-async function parseRequestBody(request: Request, type: string, required: boolean) {
+async function parseRequestBody(request: Request, type: string, required: boolean, validator?: Validator) {
     if (required && !request.body) {
-        throw new ServerError('Empty request body');
+        throw new ServerError('Empty request body'); // TODO Better error message (?)
     }
 
-    let parsedBody: Promise<any> | null = null;
+    let parsedBodyPromise: Promise<any> | null = null;
     switch (type) {
         case 'arrayBuffer':
-            parsedBody = request.arrayBuffer();
+            parsedBodyPromise = request.arrayBuffer();
             break;
         
         case 'blob':
-            parsedBody = request.blob();
+            parsedBodyPromise = request.blob();
             break;
 
         case 'formData':
-            parsedBody = request.formData();
+            parsedBodyPromise = request.formData();
             break;
 
         case 'json':
-            parsedBody = request.json();
+            parsedBodyPromise = request.json();
             break;
 
         case 'text':
-            parsedBody = request.text();
+            parsedBodyPromise = request.text();
             break;
     }
 
-    if (parsedBody !== null) {
-        return await parsedBody.catch(_ => {
+    if (parsedBodyPromise !== null) {
+        let parsedBody = await parsedBodyPromise.catch(_ => {
             throw new ServerError(`Request body could not be parsed as type '${type}'`);
         });
+
+        if (validator) {
+            if (!validator.validate(parsedBody)) {
+                throw new ServerError('') // TODO Error message
+            }
+        }
+        return parsedBody;
     } else {
         return null;
     }
 }
 
-function parseSearchParams(searchParams: URLSearchParams): Record<string, string> {
+function parseSearchParams(searchParams: URLSearchParams, validator?: ObjValidator): Record<string, string> {
     const queryParamsObj: Record<string, string> = {};
 
     for (const param of searchParams) {
@@ -73,6 +86,12 @@ function parseSearchParams(searchParams: URLSearchParams): Record<string, string
         const value: string = param[1];
 
         queryParamsObj[name] = value;
+    }
+
+    if (validator) {
+        if (!validator.validate(queryParamsObj)) {
+            throw new ServerError(''); // TODO Error message
+        }
     }
     return queryParamsObj;
 }
