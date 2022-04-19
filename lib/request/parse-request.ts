@@ -1,6 +1,6 @@
 import { ServerError } from '../response/response-error.ts';
 import { RouteParams } from './route-params.ts';
-import { Validator, ObjValidator } from '../validation.ts';
+import { Validator, ObjValidator } from '../validation/mod.ts';
 import { 
     _BODY_DECORATOR_META_KEY,
     _QUERY_DECORATOR_META_KEY, 
@@ -34,7 +34,7 @@ export async function parseBodyAndQuery(request: Request, searchParams: URLSearc
     return callbackParams;
 }
 
-async function parseRequestBody(request: Request, type: string, required: boolean, validator?: Validator) {
+async function parseRequestBody<T>(request: Request, type: string, required: boolean, validator?: Validator<T>) {
     if (required && !request.body) {
         throw new ServerError(`Empty request body (${request.url})`);
     }
@@ -68,7 +68,7 @@ async function parseRequestBody(request: Request, type: string, required: boolea
         });
 
         if (validator) {
-            if (!validator.validate(parsedBody)) {
+            if (validator.validate(parsedBody)) {
                 throw new ServerError(`Request body failed validation (${request.url})`);
             }
         }
