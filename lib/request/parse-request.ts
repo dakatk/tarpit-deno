@@ -1,6 +1,6 @@
 import { ServerError } from '../response/response-error.ts';
 import { RouteParams } from './route-params.ts';
-import { Validator, ObjValidator } from '../validation/mod.ts';
+import { Validator } from '../validation/mod.ts';
 import { 
     _BODY_DECORATOR_META_KEY,
     _QUERY_DECORATOR_META_KEY, 
@@ -17,24 +17,33 @@ export async function parseBodyAndQuery(request: Request, searchParams: URLSearc
     const queryMeta: QueryMetadata | undefined = Reflect.getMetadata(_QUERY_DECORATOR_META_KEY, target, key);
     const paramRouteMeta: ParamRouteMetadata | undefined = Reflect.getMetadata(_PARAM_ROUTE_DECORATOR_META_KEY, target, key);
 
+    const url: string = new URL(request.url).pathname;
     if (bodyMeta) {
-        callbackParams[bodyMeta.index] = await parseRequestBody(request, bodyMeta.type, bodyMeta.required, bodyMeta.validator);
+        const requestBody = await parseRequestBody(request, bodyMeta.type, bodyMeta.required);
+        callbackParams[bodyMeta.index] = validate(url, 'request body', requestBody, bodyMeta.validator);
     }
     if (queryMeta) {
-        callbackParams[queryMeta.index] = parseSearchParams(request.url, searchParams, queryMeta!.validator);
+        const requestParams = parseSearchParams(searchParams);
+        callbackParams[queryMeta.index] = validate(url, 'query params', requestParams, queryMeta.validator);
     }
     if (paramRouteMeta) {
-        if (paramRouteMeta.validator) {
-            if (!paramRouteMeta.validator.validate(routeParams)) {
-                throw new ServerError(`Route params failed validation (${request.url})`);
-            }
-        }
-        callbackParams[paramRouteMeta.index] = routeParams;
+        callbackParams[paramRouteMeta.index] = validate(url, 'route params', routeParams, paramRouteMeta.validator);
     }
     return callbackParams;
 }
 
-async function parseRequestBody<T>(request: Request, type: string, required: boolean, validator?: Validator<T>) {
+function validate<T>(url: string, type: string, value: T, validator?: Validator<T>): T {
+    if (!validator) {
+        return value;
+    }
+    try {
+        return validator.validate(value);
+    } catch (e) {
+        throw new ServerError(`Validation error (parsing ${type} for ${url}):\n${JSON.stringify(e, null, 4)}`);
+    }
+} 
+
+async function parseRequestBody(request: Request, type: string, required: boolean) {
     if (required && !request.body) {
         throw new ServerError(`Empty request body (${request.url})`);
     }
@@ -66,19 +75,13 @@ async function parseRequestBody<T>(request: Request, type: string, required: boo
         const parsedBody = await parsedBodyPromise.catch(_ => {
             throw new ServerError(`Request body could not be parsed as type '${type}'`);
         });
-
-        if (validator) {
-            if (validator.validate(parsedBody)) {
-                throw new ServerError(`Request body failed validation (${request.url})`);
-            }
-        }
         return parsedBody;
     } else {
         return null;
     }
 }
 
-function parseSearchParams(url: string, searchParams: URLSearchParams, validator?: ObjValidator): Record<string, string> {
+function parseSearchParams(searchParams: URLSearchParams): Record<string, string> {
     const queryParamsObj: Record<string, string> = {};
 
     for (const param of searchParams) {
@@ -86,12 +89,6 @@ function parseSearchParams(url: string, searchParams: URLSearchParams, validator
         const value: string = param[1];
 
         queryParamsObj[name] = value;
-    }
-
-    if (validator) {
-        if (!validator.validate(queryParamsObj)) {
-            throw new ServerError(`Query params failed validation (${url})`);
-        }
     }
     return queryParamsObj;
 }
