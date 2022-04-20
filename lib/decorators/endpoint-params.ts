@@ -1,11 +1,11 @@
 import { ObjValidator } from '../validation/mod.ts';
-import { Logger } from '../logger.ts';
+import { Logger } from '../main/logger.ts';
 import { 
     _QUERY_DECORATOR_META_KEY,
     _PARAM_ROUTE_DECORATOR_META_KEY,
     QueryMetadata,
     ParamRouteMetadata
-} from '../metadata.ts';
+} from '../main/metadata.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 export function QueryParams(validator?: ObjValidator) {

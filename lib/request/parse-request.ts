@@ -8,7 +8,7 @@ import {
     BodyMetadata,
     QueryMetadata,
     ParamRouteMetadata
-} from '../metadata.ts';
+} from '../main/metadata.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 export async function parseBodyAndQuery(request: Request, searchParams: URLSearchParams, routeParams: RouteParams, target: any, key: string, length: number): Promise<any[]> {

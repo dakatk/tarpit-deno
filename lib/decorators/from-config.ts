@@ -1,5 +1,5 @@
-import { ConfigHelper } from '../config.ts';
-import { Logger } from '../logger.ts';
+import { ConfigHelper } from '../main/config.ts';
+import { Logger } from '../main/logger.ts';
 
 // FIXME Works, but only with static members
 /**
