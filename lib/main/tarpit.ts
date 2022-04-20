@@ -1,7 +1,7 @@
-import { ResponseError } from './response/response-error.ts';
-import { parseRequestUrl } from './request/serve-request.ts';
-import { EndpointsFactory, EndpointData } from './factory/endpoints-factory.ts';
-import { DependencyFactory } from './factory/dependency-factory.ts';
+import { ResponseError } from '../response/response-error.ts';
+import { parseRequestUrl } from '../request/serve-request.ts';
+import { EndpointsFactory, EndpointData } from '../factory/endpoints-factory.ts';
+import { DependencyFactory } from '../factory/dependency-factory.ts';
 import { ControllerClass, DependencyClass } from './metadata.ts';
 import { ServerConfig, ConfigHelper, HttpsConfig } from './config.ts';
 import { Logger, Color } from './logger.ts';

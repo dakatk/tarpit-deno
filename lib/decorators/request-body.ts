@@ -73,6 +73,6 @@ function defineBodyMetadata<T>(target: any, key: string, index: number, type: st
     console.log(paramTypes);
     console.log(paramTypes[index].constructor.name);
     
-    const bodyMetadata: BodyMetadata = { type, index, required, validator };
+    const bodyMetadata: BodyMetadata<T> = { type, index, required, validator };
     Reflect.defineMetadata(_BODY_DECORATOR_META_KEY, bodyMetadata, target.constructor, key);
 }
