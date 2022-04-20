@@ -1,4 +1,4 @@
-import { ObjValidator } from '../validation.ts';
+import { ObjValidator } from '../validation/mod.ts';
 import { Logger } from '../logger.ts';
 import { 
     _QUERY_DECORATOR_META_KEY,

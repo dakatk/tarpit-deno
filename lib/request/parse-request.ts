@@ -3,9 +3,9 @@ import { RouteParams } from './route-params.ts';
 import { Validator } from '../validation/mod.ts';
 import { 
     _BODY_DECORATOR_META_KEY,
-    _QUERY_DECORATOR_META_KEY, 
+    _QUERY_DECORATOR_META_KEY,
     _PARAM_ROUTE_DECORATOR_META_KEY,
-    BodyMetadata, 
+    BodyMetadata,
     QueryMetadata,
     ParamRouteMetadata
 } from '../metadata.ts';
@@ -72,10 +72,10 @@ async function parseRequestBody(request: Request, type: string, required: boolea
     }
 
     if (parsedBodyPromise !== null) {
-        const parsedBody = await parsedBodyPromise.catch(_ => {
-            throw new ServerError(`Request body could not be parsed as type '${type}'`);
+        const body = await parsedBodyPromise.catch(_ => {
+            throw new ServerError(`Request body could not be parsed as ${type}`);
         });
-        return parsedBody;
+        return { type, body };
     } else {
         return null;
     }
