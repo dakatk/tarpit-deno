@@ -1,13 +1,14 @@
 import { ServerError } from '../response/response-error.ts';
 import { RouteParams } from './route-params.ts';
+import { Validator } from '../validation/mod.ts';
 import { 
     _BODY_DECORATOR_META_KEY,
-    _QUERY_DECORATOR_META_KEY, 
+    _QUERY_DECORATOR_META_KEY,
     _PARAM_ROUTE_DECORATOR_META_KEY,
-    BodyMetadata, 
+    BodyMetadata,
     QueryMetadata,
     ParamRouteMetadata
-} from '../metadata.ts';
+} from '../main/metadata.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 export async function parseBodyAndQuery(request: Request, searchParams: URLSearchParams, routeParams: RouteParams, target: any, key: string, length: number): Promise<any[]> {
@@ -16,50 +17,65 @@ export async function parseBodyAndQuery(request: Request, searchParams: URLSearc
     const queryMeta: QueryMetadata | undefined = Reflect.getMetadata(_QUERY_DECORATOR_META_KEY, target, key);
     const paramRouteMeta: ParamRouteMetadata | undefined = Reflect.getMetadata(_PARAM_ROUTE_DECORATOR_META_KEY, target, key);
 
+    const url: string = new URL(request.url).pathname;
     if (bodyMeta) {
-        callbackParams[bodyMeta.index] = await parseRequestBody(request, bodyMeta.type, bodyMeta.required);
+        const requestBody = await parseRequestBody(request, bodyMeta.type, bodyMeta.required);
+        callbackParams[bodyMeta.index] = validate(url, 'request body', requestBody, bodyMeta.validator);
     }
     if (queryMeta) {
-        callbackParams[queryMeta.index] = parseSearchParams(searchParams);
+        const requestParams = parseSearchParams(searchParams);
+        callbackParams[queryMeta.index] = validate(url, 'query params', requestParams, queryMeta.validator);
     }
     if (paramRouteMeta) {
-        callbackParams[paramRouteMeta.index] = routeParams;
+        callbackParams[paramRouteMeta.index] = validate(url, 'route params', routeParams, paramRouteMeta.validator);
     }
     return callbackParams;
 }
 
+function validate<T>(url: string, type: string, value: T, validator?: Validator<T>): T {
+    if (!validator) {
+        return value;
+    }
+    try {
+        return validator.validate(value);
+    } catch (e) {
+        throw new ServerError(`Validation error (parsing ${type} for ${url}):\n${JSON.stringify(e, null, 4)}`);
+    }
+} 
+
 async function parseRequestBody(request: Request, type: string, required: boolean) {
     if (required && !request.body) {
-        throw new ServerError('Empty request body');
+        throw new ServerError(`Empty request body (${request.url})`);
     }
 
-    let parsedBody: Promise<any> | null = null;
+    let parsedBodyPromise: Promise<any> | null = null;
     switch (type) {
         case 'arrayBuffer':
-            parsedBody = request.arrayBuffer();
+            parsedBodyPromise = request.arrayBuffer();
             break;
         
         case 'blob':
-            parsedBody = request.blob();
+            parsedBodyPromise = request.blob();
             break;
 
         case 'formData':
-            parsedBody = request.formData();
+            parsedBodyPromise = request.formData();
             break;
 
         case 'json':
-            parsedBody = request.json();
+            parsedBodyPromise = request.json();
             break;
 
         case 'text':
-            parsedBody = request.text();
+            parsedBodyPromise = request.text();
             break;
     }
 
-    if (parsedBody !== null) {
-        return await parsedBody.catch(_ => {
-            throw new ServerError(`Request body could not be parsed as type '${type}'`);
+    if (parsedBodyPromise !== null) {
+        const body = await parsedBodyPromise.catch(_ => {
+            throw new ServerError(`Request body could not be parsed as ${type}`);
         });
+        return { type, body };
     } else {
         return null;
     }

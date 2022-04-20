@@ -1,7 +1,7 @@
 import { MethodNotAllowedError, BadGatewayError } from '../response/response-error.ts';
 import { FileResponse } from '../response/response-types.ts';
 import { EndpointData } from '../factory/endpoints-factory.ts';
-import { ControllerBase } from '../controller.ts';
+import { ControllerBase } from '../main/controller.ts';
 import { parseBodyAndQuery } from './parse-request.ts';
 import { RouteParams, checkParameterizedRoute } from './route-params.ts';
 

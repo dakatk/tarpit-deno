@@ -4,7 +4,7 @@ import {
     InjectableMetadata, 
     ControllerMetadata,
     DependencyClass
-} from '../metadata.ts';
+} from '../main/metadata.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 interface Type<T> {

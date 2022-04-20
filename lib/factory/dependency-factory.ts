@@ -5,9 +5,9 @@ import {
     ControllerMetadata,
     DependencyClass, 
     ControllerClass
-} from '../metadata.ts';
-import { ControllerBase } from '../controller.ts';
-import { Logger } from '../logger.ts';
+} from '../main/metadata.ts';
+import { ControllerBase } from '../main/controller.ts';
+import { Logger } from '../main/logger.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 /**

@@ -1,6 +1,6 @@
-import { RouteMetadata } from '../metadata.ts';
-import { ControllerBase } from '../controller.ts';
-import { Logger } from '../logger.ts';
+import { RouteMetadata } from '../main/metadata.ts';
+import { ControllerBase } from '../main/controller.ts';
+import { Logger } from '../main/logger.ts';
 import { 
     RouteSegment,
     isParameterizedRoute,
