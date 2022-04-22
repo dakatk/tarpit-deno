@@ -3,21 +3,20 @@ type JsonValidType = string | number | Record<string, unknown> | Array<any> | bo
 /**
  * 
  */
-export interface RequestBody {
-    type: string;
-    value: { [key: string]: JsonValidType; }
+export class RequestBodyData {
+    constructor(public type: string, public value: { [key: string]: JsonValidType; }) {}
 }
 
 /**
  * 
  */
-export interface RequestQueryParams {
+export class QueryParamData {
     [key: string]: JsonValidType;
 }
 
 /**
  * 
  */
-export interface RequestRouteParams {
+export class RouteParamData {
     [key: string]: JsonValidType;
 }

@@ -1,5 +1,5 @@
 import { ControllerBase } from './controller.ts';
-import { Validator, ObjValidator } from '../validation/mod.ts';
+import { Validator } from '../validation/mod.ts';
 
 export const _ENDPOINT_DECORATOR_META_KEY = '_ENDPOINT_DECORATOR_META_KEY';
 export const _INJECTABLE_DECORATOR_META_KEY = '_INJECTABLE_DECORATOR_META_KEY';
@@ -27,19 +27,19 @@ export interface InjectableMetadata {
     singleton: boolean;
 }
 
-export interface BodyMetadata<T> {
+export interface BodyMetadata {
     type: string;
     index: number;
     required: boolean;
-    validator?: Validator<T>;
+    validator?: Validator;
 }
 
 export interface QueryMetadata {
     index: number;
-    validator?: ObjValidator;
+    validator?: Validator;
 }
 
 export interface ParamRouteMetadata {
     index: number;
-    validator?: ObjValidator;
+    validator?: Validator;
 }

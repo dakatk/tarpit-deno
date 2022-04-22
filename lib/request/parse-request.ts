@@ -1,6 +1,6 @@
 import { ServerError } from '../response/response-error.ts';
-import { RouteParams } from './route-params.ts';
 import { Validator } from '../validation/mod.ts';
+import { RequestBodyData, QueryParamData, RouteParamData } from './request-payload.ts';
 import { 
     _BODY_DECORATOR_META_KEY,
     _QUERY_DECORATOR_META_KEY,
@@ -11,7 +11,7 @@ import {
 } from '../main/metadata.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
-export async function parseBodyAndQuery(request: Request, searchParams: URLSearchParams, routeParams: RouteParams, target: any, key: string, length: number): Promise<any[]> {
+export async function parseBodyAndQuery(request: Request, searchParams: URLSearchParams, routeParams: RouteParamData, target: any, key: string, length: number): Promise<any[]> {
     const callbackParams = new Array<any>(length);
     const bodyMeta: BodyMetadata | undefined = Reflect.getMetadata(_BODY_DECORATOR_META_KEY, target, key);
     const queryMeta: QueryMetadata | undefined = Reflect.getMetadata(_QUERY_DECORATOR_META_KEY, target, key);
@@ -20,7 +20,10 @@ export async function parseBodyAndQuery(request: Request, searchParams: URLSearc
     const url: string = new URL(request.url).pathname;
     if (bodyMeta) {
         const requestBody = await parseRequestBody(request, bodyMeta.type, bodyMeta.required);
-        callbackParams[bodyMeta.index] = validate(url, 'request body', requestBody, bodyMeta.validator);
+        if (requestBody === null) {
+            callbackParams[bodyMeta.index] = null;
+        }
+        callbackParams[bodyMeta.index] = validate(url, 'request body', requestBody as RequestBodyData, bodyMeta.validator);
     }
     if (queryMeta) {
         const requestParams = parseSearchParams(searchParams);
@@ -32,7 +35,7 @@ export async function parseBodyAndQuery(request: Request, searchParams: URLSearc
     return callbackParams;
 }
 
-function validate<T>(url: string, type: string, value: T, validator?: Validator<T>): T {
+function validate(url: string, type: string, value: RequestBodyData | QueryParamData | RouteParamData, validator?: Validator): RequestBodyData | QueryParamData | RouteParamData {
     if (!validator) {
         return value;
     }
@@ -43,7 +46,7 @@ function validate<T>(url: string, type: string, value: T, validator?: Validator<
     }
 } 
 
-async function parseRequestBody(request: Request, type: string, required: boolean) {
+async function parseRequestBody(request: Request, type: string, required: boolean): Promise<RequestBodyData | null> {
     if (required && !request.body) {
         throw new ServerError(`Empty request body (${request.url})`);
     }
@@ -75,14 +78,14 @@ async function parseRequestBody(request: Request, type: string, required: boolea
         const body = await parsedBodyPromise.catch(_ => {
             throw new ServerError(`Request body could not be parsed as ${type}`);
         });
-        return { type, body };
+        return new RequestBodyData(type, body);
     } else {
         return null;
     }
 }
 
-function parseSearchParams(searchParams: URLSearchParams): Record<string, string> {
-    const queryParamsObj: Record<string, string> = {};
+function parseSearchParams(searchParams: URLSearchParams): QueryParamData {
+    const queryParamsObj: QueryParamData = new QueryParamData();
 
     for (const param of searchParams) {
         const name: string = param[0];

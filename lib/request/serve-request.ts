@@ -3,7 +3,8 @@ import { FileResponse } from '../response/response-types.ts';
 import { EndpointData } from '../factory/endpoints-factory.ts';
 import { ControllerBase } from '../main/controller.ts';
 import { parseBodyAndQuery } from './parse-request.ts';
-import { RouteParams, checkParameterizedRoute } from './route-params.ts';
+import { checkParameterizedRoute } from './route-params.ts';
+import { RouteParamData } from './request-payload.ts';
 
 type RouteActions = Record<string, (...args: any[]) => Promise<Response>>;
 
@@ -31,7 +32,7 @@ export async function parseRequestUrl(request: Request, controllerEndpoints: End
 }
 
 async function checkControllerEndpoint(route: string, searchParams: URLSearchParams, request: Request, controllerEndpoints: EndpointData): Promise<Response | undefined> {
-    let routeParams: RouteParams | undefined = undefined;
+    let routeParams: RouteParamData | undefined = undefined;
     let routeActions: RouteActions = controllerEndpoints.routeMetadata[route];
 
     if (!routeActions) {
@@ -71,7 +72,7 @@ async function checkControllerEndpoint(route: string, searchParams: URLSearchPar
  * a body, otherwise `undefined`
  * @returns The {@link Response | response} data returned from the controller method
  */
-async function responseFromController(method: string, routeActions: RouteActions, instance: ControllerBase, requestData: Request, searchParams: URLSearchParams, routeParams: RouteParams): Promise<Response> {
+async function responseFromController(method: string, routeActions: RouteActions, instance: ControllerBase, requestData: Request, searchParams: URLSearchParams, routeParams: RouteParamData): Promise<Response> {
     const callback: (...args: any[]) => Promise<Response> = routeActions[method];
     
     const classConstructor = instance.constructor;
