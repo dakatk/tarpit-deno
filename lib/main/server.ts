@@ -2,6 +2,7 @@ import { HttpsConfig } from './config.ts';
 import { Logger } from './logger.ts';
 
 type Callback = (request: Request) => Promise<Response>;
+
 const border = '===============================================';
 
 /**

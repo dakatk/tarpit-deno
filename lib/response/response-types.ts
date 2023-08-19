@@ -1,6 +1,6 @@
 import { NotFoundError } from './response-error.ts';
 import { contentType } from './content-type.ts';
-import { ConfigHelper } from '../config.ts';
+import { ConfigHelper } from '../main/config.ts';
 import * as path from 'https://deno.land/std@0.124.0/path/mod.ts';
 
 /**

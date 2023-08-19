@@ -1,12 +1,7 @@
+import { RouteParamData } from './request-payload.ts';
+
 const paramRegex = /^{[A-Za-z_-]+}$/;
 const subRouteRegex = /\/{[A-Za-z_-]+}/;
-
-/**
- * 
- */
-export interface RouteParams {
-    [key: string]: string
-}
 
 /**
  * Individual route segment
@@ -37,7 +32,7 @@ export function isParameterizedRoute(route: string): boolean {
 
 /**
  * @param route Full path of request route
- * @returns Array of {@link RouteSegment | route segments}
+ * @returns Array of {@link RouteSegment route segments}
  */
 export function compileParametrizedRoute(route: string): RouteSegment[] {
     return route.split('/').filter((value: string) => value !== '').map((value: string) => {
@@ -56,8 +51,8 @@ export function compileParametrizedRoute(route: string): RouteSegment[] {
  * @param compiled 
  * @returns 
  */
-export function checkParameterizedRoute(route: string, compiled: RouteSegment[]): RouteParams | undefined {
-    const params: RouteParams = {};
+export function checkParameterizedRoute(route: string, compiled: RouteSegment[]): RouteParamData | undefined {
+    const params: RouteParamData = new RouteParamData();
     const routeParts: string[] = route.split('/').filter((value: string) => value !== '');
     if (routeParts.length !== compiled.length) {
         return undefined;

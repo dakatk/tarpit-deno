@@ -1,12 +1,13 @@
-import { ResponseError } from './response/response-error.ts';
-import { parseRequestUrl } from './request/serve-request.ts';
-import { EndpointsFactory, EndpointData } from './factory/endpoints-factory.ts';
-import { DependencyFactory } from './factory/dependency-factory.ts';
+import { ResponseError } from '../response/response-error.ts';
+import { parseRequestUrl } from '../request/serve-request.ts';
+import { EndpointsFactory, EndpointData } from '../factory/endpoints-factory.ts';
+import { DependencyFactory } from '../factory/dependency-factory.ts';
 import { ControllerClass, DependencyClass } from './metadata.ts';
 import { ServerConfig, ConfigHelper, HttpsConfig } from './config.ts';
 import { Logger, Color } from './logger.ts';
 import { ControllerBase } from './controller.ts';
 import { serve } from './server.ts';
+import { RequestContext } from "../request/request-payload.ts";
 
 /**
  * Collection of callbacks that are automatically executed at
@@ -27,7 +28,7 @@ export interface LifetimeCallbacks {
     close?: (signal: Deno.Signal) => void;
 }
 
-// TODO Create sample middleware (auth, denodb?)
+export type Middleware = (request: RequestContext) => Promise<RequestContext>;
 
 /**
  * This is where it all begins...
@@ -40,6 +41,7 @@ export class Tarpit {
         useHttps: false,
         devMode: false
     };
+    private static middleware: Array<Middleware> = [];
 
     /**
      * Console logging with color options
@@ -53,6 +55,8 @@ export class Tarpit {
     }
 
     /**
+     * Add module data as injectable dependencies
+     * 
      * @param module ```typescript
      * { 
      * controllers: 'List of controller classes'.
@@ -71,18 +75,32 @@ export class Tarpit {
     }
 
     /**
+     * Register {@link Middleware middleware} function
+     * 
+     * @param middleware Asynchronous {@link Middleware middleware} function 
+     *  (middleware is executed in the order it's added)
+     */
+    static registerMiddleware(middleware: Middleware) {
+        this.middleware.push(middleware);
+    }
+
+    /**
      * @param serverConfig Static server config. Additional options 
      * are taken first from any environment variables given at runtime,
      * then from command line arguments.  
-     * @param lifetimeCallbacks Contains the {@link LifetimeCallbacks.setup | setup} 
-     * and {@link LifetimeCallbacks.close | close} callbacks, executed at the very 
+     * @param lifetimeCallbacks Contains the {@link LifetimeCallbacks.setup setup} 
+     * and {@link LifetimeCallbacks.close close} callbacks, executed at the very 
      * beginning and very end of the program life cycle (respsectively).
      * @param configureCli Whether or not to allow creation of extra config 
      * values from CLI variables. Defaults to `true` (Note: CLI arguments
      * cannot shadow properties already available in {@link ServerConfig}. i.e., 
      * providing `--port 9001` as a CLI argument won't override {@link ServerConfig.port}.
      */
-    static async createServer(serverConfig: ServerConfig = {}, lifetimeCallbacks?: LifetimeCallbacks, configureCli = true): Promise<void> {
+    static async createServer(
+        serverConfig: ServerConfig = {},
+        lifetimeCallbacks?: LifetimeCallbacks,
+        configureCli = true
+    ): Promise<void> {
         if (lifetimeCallbacks?.setup) {
             lifetimeCallbacks.setup();
         }
@@ -110,7 +128,12 @@ export class Tarpit {
 
         await Logger.flush();
         await serve(async request => {
-            return await handleRequest(request, controllerEndpoints, lifetimeCallbacks?.error);
+            return await handleRequest(
+                request,
+                controllerEndpoints,
+                this.middleware,
+                lifetimeCallbacks?.error
+            );
         }, port, httpsConfig);
     }
 }
@@ -124,10 +147,15 @@ function bindSignalListeners(close: (signal: Deno.Signal) => void) {
     }
 }
 
-async function handleRequest(request: Request, controllerEndpoints: EndpointData, errorCallback?: (e: ResponseError) => void): Promise<Response> {
+async function handleRequest(
+    request: Request,
+    controllerEndpoints: EndpointData,
+    middleware: Middleware[],
+    errorCallback?: (e: ResponseError) => void
+): Promise<Response> {
     let response;
     try {
-        response = await parseRequestUrl(request, controllerEndpoints);
+        response = await parseRequestUrl(request, controllerEndpoints, middleware);
     } catch (error: any) {
         response = errorResponse(error, errorCallback);
     }

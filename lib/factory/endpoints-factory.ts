@@ -1,6 +1,6 @@
-import { RouteMetadata } from '../metadata.ts';
-import { ControllerBase } from '../controller.ts';
-import { Logger } from '../logger.ts';
+import { RouteMetadata } from '../main/metadata.ts';
+import { ControllerBase } from '../main/controller.ts';
+import { Logger } from '../main/logger.ts';
 import { 
     RouteSegment,
     isParameterizedRoute,
@@ -44,7 +44,7 @@ export class EndpointsFactory {
 
     /**
      * Resolve all routes for all controllers added.
-     * @returns EndpointData {@link EndpointData | object} containing 
+     * @returns Created {@link EndpointData EndpointData object} containing 
      * information on callbacks and supported HTTP methods for all 
      * controller routes
      */
