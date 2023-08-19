@@ -32,7 +32,7 @@ export function isParameterizedRoute(route: string): boolean {
 
 /**
  * @param route Full path of request route
- * @returns Array of {@link RouteSegment | route segments}
+ * @returns Array of {@link RouteSegment route segments}
  */
 export function compileParametrizedRoute(route: string): RouteSegment[] {
     return route.split('/').filter((value: string) => value !== '').map((value: string) => {

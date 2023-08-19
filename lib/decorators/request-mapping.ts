@@ -1,8 +1,10 @@
 import { _ENDPOINT_DECORATOR_META_KEY, DecoratorRouteMetadata } from '../main/metadata.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
+type HttpMethod = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'CONNECT' | 'OPTIONS' | 'TRACE' | 'PATCH';
+
 /**
- * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET | GET} request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET GET} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
  export function GetMapping(endpoint: string) {
@@ -10,7 +12,7 @@ import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 }
 
 /**
- * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD | HEAD} request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/HEAD HEAD} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
  export function HeadMapping(endpoint: string) {
@@ -18,7 +20,7 @@ import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 }
 
 /**
- * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST | POST} request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST POST} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function PostMapping(endpoint: string) {
@@ -26,7 +28,7 @@ export function PostMapping(endpoint: string) {
 }
 
 /**
- * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT | PUT} request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PUT PUT} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function PutMapping(endpoint: string) {
@@ -34,7 +36,7 @@ export function PutMapping(endpoint: string) {
 }
 
 /**
- * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/DELETE | DELETE} request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/DELETE DELETE} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function DeleteMapping(endpoint: string) {
@@ -42,7 +44,7 @@ export function DeleteMapping(endpoint: string) {
 }
 
 /**
- * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/CONNECT | CONNECT} request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/CONNECT CONNECT} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function ConnectMapping(endpoint: string) {
@@ -50,7 +52,7 @@ export function ConnectMapping(endpoint: string) {
 }
 
 /**
- * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS | OPTIONS} request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/OPTIONS OPTIONS} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function OptionsMapping(endpoint: string) {
@@ -58,7 +60,7 @@ export function OptionsMapping(endpoint: string) {
 }
 
 /**
- * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/TRACE | TRACE} request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/TRACE TRACE} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function TraceMapping(endpoint: string) {
@@ -66,14 +68,12 @@ export function TraceMapping(endpoint: string) {
 }
 
 /**
- * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH | PATCH} request mapping for controller methods.
+ * HTTP {@link https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/PATCH PATCH} request mapping for controller methods.
  * @param endpoint URL mapped to the individual controller method
  */
 export function PatchMapping(endpoint: string) {
     return request('PATCH', endpoint);
 }
-
-type HttpMethod = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'CONNECT' | 'OPTIONS' | 'TRACE' | 'PATCH';
 
 function request(method: HttpMethod, endpoint: string) {
     return (target: any, key: string, descriptor: PropertyDescriptor) => {

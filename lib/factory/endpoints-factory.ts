@@ -44,7 +44,7 @@ export class EndpointsFactory {
 
     /**
      * Resolve all routes for all controllers added.
-     * @returns EndpointData {@link EndpointData | object} containing 
+     * @returns Created {@link EndpointData EndpointData object} containing 
      * information on callbacks and supported HTTP methods for all 
      * controller routes
      */

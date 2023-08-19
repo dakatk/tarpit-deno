@@ -5,10 +5,10 @@ import { RequestBodyData } from '../request/request-payload.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 /**
- * Populates with the {@link Request | request} body as {@link ArrayBuffer | an array buffer}.
+ * Populates with the {@link Request request} body as {@link ArrayBuffer an array buffer}.
  * 
- * @param required If `true`, an error is thrown when the {@link Request | request} 
- * has no {@link Request.body | body}. Defaults to `false`. 
+ * @param required If `true`, an error is thrown when the {@link Request request} 
+ * has no {@link Request.body body}. Defaults to `false`. 
  */
 export function ArrayBody<T>(required = false, validator?: Validator) {
     return (target: any, key: string, index: number) => {
@@ -17,10 +17,10 @@ export function ArrayBody<T>(required = false, validator?: Validator) {
 }
 
 /**
- * Populates with the {@link Request | request} body as {@link Blob | raw data}.
+ * Populates with the {@link Request request} body as {@link Blob raw data}.
  * 
- * @param required If `true`, an error is thrown when the {@link Request | request} 
- * has no {@link Request.body | body}. Defaults to `false`. 
+ * @param required If `true`, an error is thrown when the {@link Request request} 
+ * has no {@link Request.body body}. Defaults to `false`. 
  */
 export function RawDataBody(required = false) {
     return (target: any, key: string, index: number) => {
@@ -29,10 +29,10 @@ export function RawDataBody(required = false) {
 }
 
 /**
- * Populates with the {@link Request | request} body as {@link FormData | form data}.
+ * Populates with the {@link Request request} body as {@link FormData form data}.
  * 
- * @param required If `true`, an error is thrown when the {@link Request | request} 
- * has no {@link Request.body | body}. Defaults to `false`. 
+ * @param required If `true`, an error is thrown when the {@link Request request} 
+ * has no {@link Request.body body}. Defaults to `false`. 
  */
 export function FormDataBody(required = false) {
     return (target: any, key: string, index: number) => {
@@ -41,10 +41,10 @@ export function FormDataBody(required = false) {
 }
 
 /**
- * Populates with the {@link Request | request} body as a JSON object (`any` type).
+ * Populates with the {@link Request request} body as a JSON object (`any` type).
  * 
- * @param required If `true`, an error is thrown when the {@link Request | request} 
- * has no {@link Request.body | body}. Defaults to `false`. 
+ * @param required If `true`, an error is thrown when the {@link Request request} 
+ * has no {@link Request.body body}. Defaults to `false`. 
  */
 export function JsonBody(required = false, validator?: Validator) {
     return (target: any, key: string, index: number) => {
@@ -53,10 +53,10 @@ export function JsonBody(required = false, validator?: Validator) {
 }
 
 /**
- * Populates with the {@link Request | request} body as a string.
+ * Populates with the {@link Request request} body as a string.
  * 
- * @param required If `true`, an error is thrown when the {@link Request | request} 
- * has no {@link Request.body | body}. Defaults to `false`. 
+ * @param required If `true`, an error is thrown when the {@link Request request} 
+ * has no {@link Request.body body}. Defaults to `false`. 
  */
 export function TextBody(required = false, validator?: Validator) {
     return (target: any, key: string, index: number) => {

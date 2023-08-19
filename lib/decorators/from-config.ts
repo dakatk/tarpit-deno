@@ -5,6 +5,7 @@ import { Logger } from '../main/logger.ts';
 /**
  * Populates the value for the annotated static variable
  * from the server config
+ * 
  * @param propertyNames Name(s) of server config properties 
  */
 export function Config(propertyNames: string | string[]) {

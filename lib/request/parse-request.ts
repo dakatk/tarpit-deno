@@ -11,26 +11,49 @@ import {
 } from '../main/metadata.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
-export async function parseBodyAndQuery(request: Request, searchParams: URLSearchParams, routeParams: RouteParamData, target: any, key: string, length: number): Promise<any[]> {
-    const callbackParams = new Array<any>(length);
+export interface ControllerCallbackParams {
+    body?: { value: RequestBodyData | null, index: number };
+    queryParams?: { value: QueryParamData, index: number };
+    routeParams?: { value: RouteParamData, index: number };
+}
+
+export async function parseBodyAndQuery(request: Request, searchParams: URLSearchParams, routeParams: RouteParamData, target: any, key: string): Promise<ControllerCallbackParams> {
+    const callbackParams: ControllerCallbackParams = {}; 
     const bodyMeta: BodyMetadata | undefined = Reflect.getMetadata(_BODY_DECORATOR_META_KEY, target, key);
     const queryMeta: QueryMetadata | undefined = Reflect.getMetadata(_QUERY_DECORATOR_META_KEY, target, key);
-    const paramRouteMeta: ParamRouteMetadata | undefined = Reflect.getMetadata(_PARAM_ROUTE_DECORATOR_META_KEY, target, key);
+    const routeMeta: ParamRouteMetadata | undefined = Reflect.getMetadata(_PARAM_ROUTE_DECORATOR_META_KEY, target, key);
 
     const url: string = new URL(request.url).pathname;
+
     if (bodyMeta) {
-        const requestBody = await parseRequestBody(request, bodyMeta.type, bodyMeta.required);
-        if (requestBody === null) {
-            callbackParams[bodyMeta.index] = null;
+        let requestBody: RequestBodyData | null = await parseRequestBody(request, bodyMeta.type, bodyMeta.required);
+        if (requestBody !== null) {
+            requestBody = validate(url, 'request body', requestBody as RequestBodyData, bodyMeta.validator) as RequestBodyData;
         }
-        callbackParams[bodyMeta.index] = validate(url, 'request body', requestBody as RequestBodyData, bodyMeta.validator);
+
+        callbackParams.body = {
+            value: requestBody,
+            index: bodyMeta.index
+        };
     }
+
     if (queryMeta) {
-        const requestParams = parseSearchParams(searchParams);
-        callbackParams[queryMeta.index] = validate(url, 'query params', requestParams, queryMeta.validator);
+        let requestParams: QueryParamData = parseSearchParams(searchParams);
+        requestParams = validate(url, 'query params', requestParams, queryMeta.validator) as QueryParamData;
+
+        callbackParams.queryParams = {
+            value: requestParams,
+            index: queryMeta.index
+        };
     }
-    if (paramRouteMeta) {
-        callbackParams[paramRouteMeta.index] = validate(url, 'route params', routeParams, paramRouteMeta.validator);
+
+    if (routeMeta) {
+        routeParams = validate(url, 'route params', routeParams, routeMeta.validator) as RouteParamData;
+
+        callbackParams.routeParams = {
+            value: routeParams,
+            index: routeMeta.index
+        };
     }
     return callbackParams;
 }

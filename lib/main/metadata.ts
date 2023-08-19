@@ -7,15 +7,22 @@ export const _CONTROLLER_DECORATOR_META_KEY = '_CONTROLLER_DECORATOR_META_KEY';
 export const _BODY_DECORATOR_META_KEY = '_BODY_DECORATOR_META_KEY';
 export const _QUERY_DECORATOR_META_KEY = '_QUERY_DECORATOR_META_KEY';
 export const _PARAM_ROUTE_DECORATOR_META_KEY = '_PARAM_ROUTE_DECORATOR_META_KEY';
+export const _REQUEST_PROP_DECORATOR_MET_KEY = '_REQUEST_PROP_DECORATOR_MET_KEY';
 
 export type RouteMetadata = Record<string, Record<string, (...args: any[]) => Promise<Response>>>;
 export type ControllerClass = new (...args: any[]) => ControllerBase;
 export type DependencyClass = new (...args: any[]) => any;
+export type ValidationMethod = (value: any) => string[];
 
 export interface DecoratorRouteMetadata {
     method: string;
     endpoint: string;
     callback: (...args: any[]) => Promise<Response>;
+}
+
+export interface RequestPropertyMetadata {
+    propertyName: string;
+    callback: ValidationMethod;
 }
 
 export interface ControllerMetadata {
