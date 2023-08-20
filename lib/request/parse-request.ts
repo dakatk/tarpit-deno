@@ -63,6 +63,7 @@ function validate(url: string, type: string, value: RequestBodyData | QueryParam
         return value;
     }
     try {
+        // TODO validate `value.value` if value is RequestBodyData
         return validator.validate(value);
     } catch (e) {
         throw new ServerError(`Validation error (parsing ${type} for ${url}):\n${JSON.stringify(e, null, 4)}`);

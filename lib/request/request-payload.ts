@@ -1,11 +1,25 @@
-type JsonValidType = string | number | Record<string, unknown> | Array<any> | boolean | null; 
+type JsonValidType = string | number | Record<string, unknown> | Array<unknown> | boolean | null; 
 
 export type RequestData = RequestBodyData | QueryParamData | RouteParamData;
 
+/**
+ * Request data for current request
+ */
 export interface RequestContext {
-    body?: RequestBodyData | null;
-    query?: QueryParamData;
-    route?: RouteParamData;
+    /**
+     * Request body
+     */
+    body?: any;
+
+    /**
+     * Request query params
+     */
+    query?: any;
+
+    /**
+     * Request route params
+     */
+    route?: any;
 }
 
 /**

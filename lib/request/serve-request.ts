@@ -35,9 +35,7 @@ export async function parseRequestUrl(request: Request, controllerEndpoints: End
         return controllerResponse;
     }
 
-    return await new Promise(resolve => 
-        resolve(new FileResponse(pathname))
-    );
+    return await new FileResponse(pathname).async();
 }
 
 async function checkControllerEndpoint(
@@ -111,7 +109,7 @@ async function responseFromController(
     const callbackParams = await parseBodyAndQuery(requestData, searchParams, routeParams, classConstructor, name);
     
     let context: RequestContext = {
-        body: callbackParams.body?.value,
+        body: callbackParams.body?.value?.value,
         query: callbackParams.queryParams?.value,
         route: callbackParams.routeParams?.value
     };
@@ -134,12 +132,20 @@ async function responseFromController(
         params[callbackParams.routeParams.index] = context.route;
     }
 
-    const responseValue = await callback.call(instance, ...params);
-
-    if (!(responseValue instanceof Response)) {
-        throw new BadGatewayError(`Invalid response type returned from '${classConstructor.name}.${name}' (expected: Response, got: ${responseValue['constructor']['name']})`)
+    let responseValue: any;
+    try {
+        responseValue = callback.call(instance, ...params);
+    } catch (e) {
+        throw e;
     }
-    return responseValue;
+
+    if (responseValue instanceof Promise) {
+        return await responseValue.catch(e => { throw e; });
+    } else if (!(responseValue instanceof Response)) {
+        throw new BadGatewayError(`Invalid response type returned from '${classConstructor.name}.${name}' (expected: Response, got: ${responseValue['constructor']['name']})`)
+    } else {
+        return responseValue;
+    }
 }
 
 

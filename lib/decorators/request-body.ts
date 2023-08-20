@@ -1,7 +1,6 @@
 import { _BODY_DECORATOR_META_KEY, BodyMetadata } from '../main/metadata.ts';
 import { Validator } from '../validation/mod.ts';
 import { Logger } from '../main/logger.ts';
-import { RequestBodyData } from '../request/request-payload.ts';
 import 'https://deno.land/x/reflection@0.0.2/mod.ts';
 
 /**
@@ -68,11 +67,6 @@ function defineBodyMetadata(target: any, key: string, index: number, type: strin
     if (Reflect.hasMetadata(_BODY_DECORATOR_META_KEY, target.constructor, key)) {
         Logger.queue("Only one '@*Body' annotation allowed per controller method. All others after the first one will be ignored.", 'warning');
         return;
-    }
-
-    const paramTypes: Array<any> = Reflect.getMetadata('design:paramtypes', target, key) || [];
-    if (paramTypes[index] !== RequestBodyData) {
-        throw new Error("Parameters with '@*Body' annotations must be of type 'RequestBodyData'");
     }
     
     const bodyMetadata: BodyMetadata = { type, index, required, validator };

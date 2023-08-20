@@ -31,11 +31,15 @@ export function Controller() {
  * using only that one instance for each injection. Otherwise, a new instance of 
  * the class will be created for each other class that depends on it.
  */
-export function Injectable(singleton = true) {
+export function Injectable(singleton = false) {
     return function <T>(target: Type<T>) {
         const params: Array<DependencyClass> = Reflect.getMetadata('design:paramtypes', target) || [];
         const metadata: InjectableMetadata = { singleton, params };
 
         Reflect.defineMetadata(_INJECTABLE_DECORATOR_META_KEY, metadata, target);
     };
+}
+
+export function Singleton() {
+    return Injectable(true);
 }
